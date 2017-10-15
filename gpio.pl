@@ -45,7 +45,35 @@ warn "XXX $pin $line";
 	}
 };
 
-print "$_\n" foreach @lines;
+my @max_len = ( 0,0,0,0 );
+my @line_parts;
+foreach my $line (@lines) {
+	if ( $line =~ m/^#/ ) {
+		push @line_parts, [ $line ];
+		next;
+	}
+	my @v = split(/\s*\t+\s*/,$line,4);
+	push @line_parts, [ @v ];
+	foreach my $i ( 0 .. 3 ) {
+		my $l = length($v[$i]);
+		$max_len[$i] = $l if $l > $max_len[$i];
+	}
+}
+
+warn "# max_len = ",dump( \@max_len );
+warn "# line_parts = ",dump( \@line_parts );
+
+#print "$_\n" foreach @lines;
+
+my $fmt = "%$max_len[0]s %-$max_len[1]s %$max_len[2]s %-$max_len[3]s\n";
+
+foreach my $line ( @line_parts ) {
+	if ( $#$line == 0 ) {
+		print $line->[0], "\n";
+	} else {
+		printf $fmt, @$line;
+	}
+}
 
 __DATA__
 # Cubietech Cubieboard2
