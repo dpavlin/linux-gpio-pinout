@@ -84,6 +84,7 @@ foreach my $line ( @line_parts ) {
 	if ( $#$line == 0 ) {
 		print $line->[0], "\n";
 	} else {
+		push @$line, '' while ($#$line < 3); # fill-in single row header
 		printf $fmt, @$line;
 	}
 }
