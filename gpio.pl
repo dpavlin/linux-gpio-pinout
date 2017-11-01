@@ -13,16 +13,29 @@ sub slurp {
 my $pins;
 
 my $model = slurp('/proc/device-tree/model');
+$model =~ s/\x00$//; # strip kernel NULL
+warn "# model [$model]";
 
 my @lines;
 my $line_i = 0;
 
+my $include = 0;
 while(<DATA>) {
 	chomp;
-	push @lines, $_;
-	push @{ $pins->{$1} }, $line_i while ( m/\t(P\w\w+)\s/g );
-	$line_i++;
+	if ( m/^#\s*$model/ ) {
+		$include = 1;
+	} elsif ( m/^#\s+/ ) {
+		$include = 0;
+	} elsif ( $include ) {
+		push @lines, $_;
+		push @{ $pins->{$1} }, $line_i while ( m/\t(P\w\w+)\s/g );
+		$line_i++;
+	} else {
+		warn "IGNORE: [$_]\n";
+	}
 }
+
+die "add pin definition for # $model" unless $pins;
 
 warn "# pins ",dump($pins);
 
@@ -134,3 +147,29 @@ __DATA__
 43 	CVBS 					44 	PE9 (CSI0-D5)
 45 	HPL 					46 	PE10 (CSI0-D6)
 47 	HPR 					48 	PE11 (CSI0-D7)
+
+# Lamobo R1
+## CON3 rpi DIP26-254
+1	3.3v			2	5v     
+3	PB20 SDA.1		4	5V     
+5	PB21 SCL.1		6	0v     
+7	PI3 PWM1		8	PH0 UART3_TX
+9	0v			10	PH1 UART3_RX
+11	PI19 UART2_RX		12	PH2
+13	PI18 UART2_TX		14	0v     
+15	PI17 UART2_CTS		16	PH21 CAN_RX 
+17	3.3v			18	PH20 CAN_TX 
+19	PI12 SPI0_MOSI		20	0v     
+21	PI13 SPI0_MISO		22	PI16 UART2_RTS   
+23	PI11 SPI0_SCLK		24	PI10 SPI0_CS0    
+25	0v			26	PI14 SPI0_CS1
+
+## J13 DIP2-254
+2	PB22 UART0_TX
+1	PB23 UART0_RX
+
+## J12 DIP8-254
+8	GND			7	GND
+6	PI20 UART7_TX		5	PH3
+4	PI21 UART7_RX		3	PH5
+2	3V3			1	SATA-5V
