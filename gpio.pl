@@ -28,7 +28,7 @@ while(<DATA>) {
 		$include = 0;
 	} elsif ( $include ) {
 		push @lines, $_;
-		push @{ $pins->{$1} }, $line_i while ( m/\t(P\w\w+)\s/g );
+		push @{ $pins->{$1} }, $line_i while ( m/\t(P\w\d+)/g );
 		$line_i++;
 	} else {
 		warn "IGNORE: [$_]\n";
