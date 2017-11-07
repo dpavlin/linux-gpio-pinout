@@ -149,6 +149,13 @@ __DATA__
 45 	HPL 					46 	PE10 (CSI0-D6)
 47 	HPR 					48 	PE11 (CSI0-D7)
 
+## DEBUG serial (middle of board)
+4	PB22 (UART0-TX)
+3	PB23 (UART0-RX)
+2	VCC-3V3
+1	GND
+
+
 # Lamobo R1
 ## CON3 rpi DIP26-254
 1	3.3v			2	5v     
