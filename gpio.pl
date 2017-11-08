@@ -13,7 +13,7 @@ GetOptions(
 );
 
 # svg font hints
-my $font_w = 1.80; # < 2.54, font is not perfect square
+my $font_w = 1.67; # < 2.54, font is not perfect square
 
 sub slurp {
 	open(my $fh, '<', shift);
@@ -78,7 +78,7 @@ foreach my $line (@lines) {
 		push @line_parts, [ $line ] unless $opt_svg;
 		next;
 	}
-	$line =~ s/\([^\)]+\)//g && warn "NUKED ALT";
+	$line =~ s/\s*\([^\)]+\)//g && warn "NUKED ALT";
 	my @v = split(/\s*\t+\s*/,$line,4);
 	push @line_parts, [ @v ];
 	foreach my $i ( 0 .. 3 ) {
@@ -147,7 +147,7 @@ sub svg_style {
 
 	}
 
-	if ( $col == 0 || $col == 2 ) { # pins
+	if ( $name =~ m/^\d+$/ ) { # pins
 		my ( $c1, $c2 ) = @pin_cols;
     		rect $x,$y,$col,$c1;
 		return qq{ style="fill:$c2"};
@@ -166,6 +166,12 @@ sub svg_style {
 
 my $alt_col = 0;
 
+my @cols_order = ( 0,1,2,3 );
+my @cols_align = ( '','-','','-' ); # sprintf prefix
+
+@cols_order = ( 0,1,3,2 ); # pins outside on the right
+@cols_align = ( '','-','-','' );
+
 foreach my $line ( @line_parts ) {
 
 	my $pin_color = $alt_col ? '#cccccc' : '#444444';
@@ -176,8 +182,9 @@ foreach my $line ( @line_parts ) {
 		my $tspan = qq{<tspan x="$x" y="$y" style="font-size:2.82222223px;line-height:2.53999996px;font-family:'Andale Mono';fill-opacity:1;fill:#ffffff;stroke:none;">};
 
 		my $x_pos = $x;
-		foreach my $i ( 0 .. $#$line ) {
-			$tspan .= qq{<tspan x="$x_pos"}.svg_style($line->[$i],$x_pos,$y,$i).sprintf(qq{>%-$max_len[$i]s</tspan>}, $line->[$i]);
+		foreach my $i ( @cols_order ) {
+			next unless $line->[$i];
+			$tspan .= qq{<tspan x="$x_pos"}.svg_style($line->[$i],$x_pos,$y,$i).sprintf( '>%' . $cols_align[$i] . $max_len[$i] . 's</tspan>', $line->[$i]);
 			$x_pos += $max_len[$i] * $font_w;
 		}
 
@@ -234,8 +241,8 @@ __DATA__
 36 	XN_TP (TP-X2)				35 	YN_TP (TP-Y2)
 34 	XP_TP (TP-X1)				33 	YP_TP (TP-Y1)
 32 	PD25 (LCDDE) 				31 	PB2 (PWM0)
-30 	PD26 (LCDHSYNC)-VGA-HSYNC	 	29 	PD24 (LCDCLK)
-28 	PD23 (LCDD23) 				27 	PD27 (LCDVSYNC)-VGA-VSYNC
+30 	PD26 (LCDHSYNC/VGA-HSYNC)	 	29 	PD24 (LCDCLK)
+28 	PD23 (LCDD23) 				27 	PD27 (LCDVSYNC/VGA-VSYNC)
 26 	PD21 (LCDD21) 				25 	PD22 (LCDD22)
 24 	PD19 (LCDD19/LVDS1N3) 			23 	PD20 (LCDD20)
 22 	PD17 (LCDD17/LVDS1NC) 			21 	PD18 (LCDD18/LVDS1P3)
