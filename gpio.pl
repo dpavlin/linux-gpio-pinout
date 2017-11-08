@@ -3,6 +3,17 @@ use warnings;
 use strict;
 use autodie;
 use Data::Dump qw(dump);
+use Getopt::Long;
+
+my $opt_svg = $ENV{SVG} || 0;
+my $opt_alt = $ENV{ALT} || 1;
+GetOptions(
+	'svg!' => \$opt_svg,
+	'alt!' => \$opt_alt,
+);
+
+# svg font hints
+my $font_w = 1.80; # < 2.54, font is not perfect square
 
 sub slurp {
 	open(my $fh, '<', shift);
@@ -27,8 +38,10 @@ while(<DATA>) {
 	} elsif ( m/^#\s+/ ) {
 		$include = 0;
 	} elsif ( $include ) {
-		push @lines, $_;
 		push @{ $pins->{$1} }, $line_i while ( m/\t(P\w\d+)/g );
+
+		push @lines, $_;
+
 		$line_i++;
 	} else {
 		warn "IGNORE: [$_]\n";
@@ -62,13 +75,15 @@ my @max_len = ( 0,0,0,0 );
 my @line_parts;
 foreach my $line (@lines) {
 	if ( $line =~ m/^#/ ) {
-		push @line_parts, [ $line ];
+		push @line_parts, [ $line ] unless $opt_svg;
 		next;
 	}
+	$line =~ s/\([^\)]+\)//g && warn "NUKED ALT";
 	my @v = split(/\s*\t+\s*/,$line,4);
 	push @line_parts, [ @v ];
 	foreach my $i ( 0 .. 3 ) {
 		next unless exists $v[$i];
+		next if $v[$i] =~ m/^#/; # don't calculate comments into max length
 		my $l = length($v[$i]);
 		$max_len[$i] = $l if $l > $max_len[$i];
 	}
@@ -81,13 +96,128 @@ warn "# line_parts = ",dump( \@line_parts );
 
 my $fmt = "%$max_len[0]s %-$max_len[1]s %$max_len[2]s %-$max_len[3]s\n";
 
-foreach my $line ( @line_parts ) {
-	if ( $#$line == 0 ) {
-		print $line->[0], "\n";
-	} else {
-		push @$line, '' while ($#$line < 3); # fill-in single row header
-		printf $fmt, @$line;
+my $x = 30.00; # mm
+my $y = 30.00; # mm
+
+if ( $opt_svg ) {
+	print qq{<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 210 297"
+   height="297mm"
+   width="210mm">
+
+
+  <g id="layer1">
+
+    <rect y="88.686066" x="30.48" height="2.54" width="73.659996" id="rect4759" style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;" />
+
+    <rect
+       y="43.177692"
+       x="30.48"
+       height="2.54"
+       width="73.659996"
+       id="rect4755"
+       style="opacity:0.84200003;fill:#123456;fill-opacity:1;stroke:none;stroke-width:0.28884605;stroke-opacity:1" />
+
+	<rect x="0" y="0" width="210" height="297" style="fill:#000000" id="high-contrast"/>
+
+	}; # svg, insert rest of rect
+
+}
+
+my @later;
+
+my @pin_cols = ( '#ffffff', '#000000' );
+
+sub svg_style {
+	my ($name,$x,$y,$col) = @_;
+	$y -= 2.30; # shift box overlay to right vertical position based on font baseline
+
+	sub rect {
+		my ($x,$y,$col,$fill) = @_;
+    		print qq{<rect x="$x" y="$y" height="2.54" width="}, $max_len[$col] * $font_w, qq{" style="opacity:1;fill:$fill;fill-opacity:1;stroke:#ffffff;stroke-width:0.10;stroke-opacity:1" />};
+
 	}
+
+	if ( $col == 0 || $col == 2 ) { # pins
+		my ( $c1, $c2 ) = @pin_cols;
+    		rect $x,$y,$col,$c1;
+		return qq{ style="fill:$c2"};
+	}
+
+	if ( $name =~ m/(VCC|3V3)/i ) {
+    		rect $x,$y,$col,'#000000';
+		return qq{ style="fill:#ffcc88"};
+	} elsif ( $name =~ m/(G(ND|Round)|VSS)/i ) {
+    		rect $x,$y,$col,'#000000';
+		return qq{ style="fill:#ff8800"};
+	} else {
+		return '';
+	}
+}
+
+my $alt_col = 0;
+
+foreach my $line ( @line_parts ) {
+
+	my $pin_color = $alt_col ? '#cccccc' : '#444444';
+	$alt_col = ! $alt_col;
+
+	if ( $opt_svg ) {
+
+		my $tspan = qq{<tspan x="$x" y="$y" style="font-size:2.82222223px;line-height:2.53999996px;font-family:'Andale Mono';fill-opacity:1;fill:#ffffff;stroke:none;">};
+
+		my $x_pos = $x;
+		foreach my $i ( 0 .. $#$line ) {
+			$tspan .= qq{<tspan x="$x_pos"}.svg_style($line->[$i],$x_pos,$y,$i).sprintf(qq{>%-$max_len[$i]s</tspan>}, $line->[$i]);
+			$x_pos += $max_len[$i] * $font_w;
+		}
+
+		$tspan .= qq{</tspan>};
+		push @later,sprintf $tspan, @$line;
+		$y += 2.54;
+
+		# swap pin colors
+		my ( $c1, $c2 ) = @pin_cols;
+		@pin_cols = ( $c2, $c1 );
+
+	} else {
+
+		if ( $#$line == 0 ) {
+			print $line->[0], "\n";
+		} else {
+			push @$line, '' while ($#$line < 3); # fill-in single row header
+			printf $fmt, @$line;
+		}
+
+	}
+}
+
+if ( $opt_svg ) {
+	print qq{
+    <text
+       id="text4506"
+       y="$x"
+       x="$y"
+       style="font-size:2.82222223px;line-height:2.53999996px;font-family:'Andale Mono';fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-opacity:1"
+       xml:space="preserve">
+
+	}; #svg
+
+	print @later, qq{
+</text>
+</g>
+</svg>
+	}; #svg
+
 }
 
 __DATA__
@@ -129,7 +259,7 @@ __DATA__
 7 	PB19 (TWI1-SDA) 			8 	PG3 (CSI1-VSYNC/SDC1-D1)
 9 	PG2 (CSI1-HSYNC/SDC1-D0) 		10 	PG1 (CSI1-MCLK/SDC1-CLK)
 11 	PG4 (CSI1-D0/SDC1-D2) 			12 	PG5 (CSI1-D1/SDC1-D3)
-13 	PG6 (CSI1-D2/UART3-TX) 			14 	PG7 (CSI1-D3/UART3-RX
+13 	PG6 (CSI1-D2/UART3-TX) 			14 	PG7 (CSI1-D3/UART3-RX)
 15 	PG8 (CSI1-D4/UART3-RTS) 		16 	PG9 (CSI1-D5/UART3-CTS)
 17 	PG10 (CSI1-D6/UART4-TX) 		18 	PG11 (CSI1-D7/UART4-RX)
 19 	Ground 					20 	Ground
