@@ -68,6 +68,7 @@ foreach my $line (@lines) {
 	my @v = split(/\s*\t+\s*/,$line,4);
 	push @line_parts, [ @v ];
 	foreach my $i ( 0 .. 3 ) {
+		next unless exists $v[$i];
 		my $l = length($v[$i]);
 		$max_len[$i] = $l if $l > $max_len[$i];
 	}
