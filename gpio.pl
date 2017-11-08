@@ -7,13 +7,18 @@ use Getopt::Long;
 
 my $opt_svg = $ENV{SVG} || 0;
 my $opt_alt = $ENV{ALT} || 1;
+my $opt_invert = $ENV{INVERT} = 1;
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
+	'invert!' => \$opt_invert,
 );
 
 # svg font hints
 my $font_w = 1.67; # < 2.54, font is not perfect square
+
+my $txt_color = '#000000';
+   $txt_color = '#ffffff' if $opt_invert;
 
 sub slurp {
 	open(my $fh, '<', shift);
@@ -115,27 +120,20 @@ if ( $opt_svg ) {
    width="210mm">
 
 
-  <g id="layer1">
-
-    <rect y="88.686066" x="30.48" height="2.54" width="73.659996" id="rect4759" style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;" />
-
-    <rect
-       y="43.177692"
-       x="30.48"
-       height="2.54"
-       width="73.659996"
-       id="rect4755"
-       style="opacity:0.84200003;fill:#123456;fill-opacity:1;stroke:none;stroke-width:0.28884605;stroke-opacity:1" />
-
-	<rect x="0" y="0" width="210" height="297" style="fill:#000000" id="high-contrast"/>
+<g id="layer1">
 
 	}; # svg, insert rest of rect
 
+	print qq{<rect x="0" y="0" width="210" height="297" style="fill:#000000" id="high-contrast"/>} if $opt_invert;
 }
 
 my @later;
 
-my @pin_cols = ( '#ffffff', '#000000' );
+my $cols = {	# foreground background
+	pins => [ '#ffffff', '#ff00ff' ],
+	vcc  => [ '#ff0000', '#ffff00' ],
+	gnd  => [ '#000000', '#00ffff' ],
+};
 
 sub svg_style {
 	my ($name,$x,$y,$col) = @_;
@@ -148,17 +146,19 @@ sub svg_style {
 	}
 
 	if ( $name =~ m/^\d+$/ ) { # pins
-		my ( $c1, $c2 ) = @pin_cols;
+		my ( $c1, $c2 ) = @{ $cols->{pins} };
     		rect $x,$y,$col,$c1;
 		return qq{ style="fill:$c2"};
 	}
 
 	if ( $name =~ m/(VCC|3V3)/i ) {
-    		rect $x,$y,$col,'#000000';
-		return qq{ style="fill:#ffcc88"};
+		my ($fg,$bg) = @{ $cols->{vcc} };
+    		rect $x,$y,$col,$bg;
+		return qq{ style="fill:$fg"};
 	} elsif ( $name =~ m/(G(ND|Round)|VSS)/i ) {
-    		rect $x,$y,$col,'#000000';
-		return qq{ style="fill:#ff8800"};
+		my ($fg,$bg) = @{ $cols->{gnd} };
+    		rect $x,$y,$col,$bg;
+		return qq{ style="fill:$fg"};
 	} else {
 		return '';
 	}
@@ -179,7 +179,7 @@ foreach my $line ( @line_parts ) {
 
 	if ( $opt_svg ) {
 
-		my $tspan = qq{<tspan x="$x" y="$y" style="font-size:2.82222223px;line-height:2.53999996px;font-family:'Andale Mono';fill-opacity:1;fill:#ffffff;stroke:none;">};
+		my $tspan = qq{<tspan x="$x" y="$y" style="font-size:2.82222223px;line-height:2.53999996px;font-family:'Andale Mono';fill-opacity:1;fill:$txt_color;stroke:none;">};
 
 		my $x_pos = $x;
 		foreach my $i ( @cols_order ) {
@@ -193,8 +193,8 @@ foreach my $line ( @line_parts ) {
 		$y += 2.54;
 
 		# swap pin colors
-		my ( $c1, $c2 ) = @pin_cols;
-		@pin_cols = ( $c2, $c1 );
+		my ( $c1, $c2 ) = @{ $cols->{pins} };
+		$cols->{pins} = [ $c2, $c1 ];
 
 	} else {
 
