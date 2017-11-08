@@ -8,10 +8,12 @@ use Getopt::Long;
 my $opt_svg = $ENV{SVG} || 0;
 my $opt_alt = $ENV{ALT} || 1;
 my $opt_invert = $ENV{INVERT} = 1;
+my $opt_vertical = $ENV{VERTICAL} = 0;
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
 	'invert!' => \$opt_invert,
+	'vertical!' => \$opt_vertical,
 );
 
 # svg font hints
@@ -172,7 +174,9 @@ my @cols_align = ( '','-','','-' ); # sprintf prefix
 @cols_order = ( 0,1,3,2 ); # pins outside on the right
 @cols_align = ( '','-','-','' );
 
-foreach my $line ( @line_parts ) {
+foreach my $i ( 0 .. $#line_parts ) {
+	$i = $#line_parts - $i if $opt_vertical;
+	my $line = $line_parts[$i];
 
 	my $pin_color = $alt_col ? '#cccccc' : '#444444';
 	$alt_col = ! $alt_col;
