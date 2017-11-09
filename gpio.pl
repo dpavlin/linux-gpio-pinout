@@ -192,7 +192,7 @@ sub svg_style {
 		my ($fg,$bg) = @{ $cols->{gnd} };
     		rect $x,$y,$col,$bg;
 		return qq{ style="fill:$fg"};
-	} elsif ( $name =~ m/\[(\w+)\d\]/ ) { # kernel
+	} elsif ( $name =~ m/\[(\w+)\d/ ) { # kernel
 		my $dev = $1;
 		if ( my ($fg,$bg) = @{ $cols->{$dev} } ) {
 			rect $x,$y,$col,$bg;
