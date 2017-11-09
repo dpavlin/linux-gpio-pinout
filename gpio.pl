@@ -97,6 +97,7 @@ foreach my $line (@lines) {
 		push @line_parts, [ $line ] unless $opt_svg;
 		next;
 	}
+	$line =~ s/(\[uart\d)(\]\s[^\t]*(rx|tx))/$1 $3$2/gi;
 	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
 
 	my @v = split(/\s*\t+\s*/,$line,4);
