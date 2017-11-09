@@ -98,6 +98,7 @@ foreach my $line (@lines) {
 		next;
 	}
 	$line =~ s/(\[uart\d)(\]\s[^\t]*(rx|tx))/$1 $3$2/gi;
+	$line =~ s/(\[i2c\d)(\]\s[^\t]*(sck|sda))/$1 $3$2/gi;
 	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
 
 	my @v = split(/\s*\t+\s*/,$line,4);
