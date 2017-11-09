@@ -167,11 +167,17 @@ sub svg_style {
 	if ( $name =~ m/^(\d+)$/ ) { # pins
 		my $pin = $1;
 		my ( $fg, $bg ) = @{ $cols->{pins} };
-    		rect $x,$y,$col,$fg;
 		if ( $pin == 1 ) {
-			my $cx = $x + ( $max_len[$col]*$font_w  );
-			my $cy = $y + ( 2.54  );
-			print qq{<polygon points="$x,$y $cx,$y $x,$cy $x,$y" stroke="$fg" stroke-width="0.25" fill="#000000" />};
+			my $w  = $max_len[$col]*$font_w - 0.1;
+			my $cx = $x + $w;
+			my $cy = $y + 2.54;
+			#print qq{<polygon points="$x,$y $cx,$y $x,$cy $x,$y" stroke="$fg" stroke-width="0.25" fill="$bg" />};
+			#print qq{<polygon points="$x,$cy $cx,$cy $cx,$y $x,$cy" stroke="$bg" stroke-width="0.25" fill="$fg" />};
+			print qq{<rect x="$x" y="$y" width="$w" height="2.54" stroke="$fg" stroke-width="0.3" fill="$bg" />};
+			my ( $fg, $bg ) = @{ $cols->{txt} };
+			print qq{<rect x="$x" y="$y" width="$w" height="2.54" rx="1" ry="1" stroke="$fg" stroke-width="0.3" fill="$bg" />};
+		} else {
+			rect $x,$y,$col,$fg;
 		}
 		return qq{ style="fill:$bg"};
 	}
