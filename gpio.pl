@@ -20,9 +20,7 @@ GetOptions(
 
 # svg font hints
 my $font_w = 1.67; # < 2.54, font is not perfect square
-
-my $txt_color = '#000000';
-   $txt_color = '#ffffff' if $opt_invert;
+my $font_b = 2.10; # font baseline position
 
 sub slurp {
 	open(my $fh, '<', shift);
@@ -157,13 +155,23 @@ my $cols = {	# foreground background
 	spi  => [ '#880000', '#ccccff' ],
 };
 
+sub swap_cols {
+	my $swap = shift;
+	die "$swap not found in ",dump($cols) unless $cols->{$swap};
+	my ( $c1, $c2 ) = @{ $cols->{$swap} };
+	$cols->{$swap} = [ $c2, $c1 ];
+}
+
+swap_cols 'txt' if $opt_invert;
+	
+
 sub svg_style {
 	my ($name,$x,$y,$col) = @_;
-	$y -= 2.10; # shift box overlay to right vertical position based on font baseline
+	$y -= $font_b; # shift box overlay to right vertical position based on font baseline
 
 	sub rect {
 		my ($x,$y,$col,$fill) = @_;
-    		print qq{<rect x="$x" y="$y" height="2.54" width="}, $max_len[$col] * $font_w, qq{" style="opacity:1;fill:$fill;fill-opacity:1;stroke:#ffffff;stroke-width:0.10;stroke-opacity:1" />};
+    		print qq{<rect x="$x" y="$y" height="2.54" width="}, $max_len[$col] * $font_w, qq{" style="opacity:1;fill:$fill;stroke:#ffffff;stroke-width:0.10" />\n};
 
 	}
 
@@ -215,17 +223,50 @@ my @cols_align = ( '','-','','-' ); # sprintf prefix
 @cols_order = ( 0,1,3,2 ); # pins outside on the right
 @cols_align = ( '','-','-','' );
 
+
+# cut marks
+my ($fg,$bg) = @{ $cols->{txt} };
+my $line_fmt = qq{<line x1="%s" y1="%s" x2="%s" y2="%s" style="stroke:$fg;stroke-width:0.10;fill:$bg" />\n};
+
+my @cut_marks;
+sub cut_mark {
+	my ($x,$y) = @_;
+	push @cut_marks, printf($line_fmt, $x-5, $y-$font_b,   $x+5, $y-$font_b);
+	push @cut_marks, printf($line_fmt, $x,   $y-$font_b-5, $x,   $y-$font_b+5);
+}
+cut_mark $x, $y;
+my $max_x = $x;
+$max_x += $max_len[$_] * $font_w foreach ( 0 .. 3 );
+cut_mark $max_x, $y;
+
+my $last_cut_mark = 0;
+
 foreach my $i ( 0 .. $#line_parts ) {
 	$i = $#line_parts - $i if $opt_vertical;
 	my $line = $line_parts[$i];
-
-	my $pin_color = $alt_col ? '#cccccc' : '#444444';
-	$alt_col = ! $alt_col;
+	warn "# LINE ",dump($line);
 
 	if ( $opt_svg ) {
 
+		if ( ! exists $line->[0] ) {
+			# before first empty line
+			if ( $last_cut_mark == 0 ) {
+				cut_mark $x, $y;
+				cut_mark $max_x, $y;
+				$last_cut_mark = 1;
+				$y += 15; # make spacing between pinouts
+			}
+		} elsif ( $last_cut_mark ) {
+			# first full line
+			cut_mark $x, $y;
+			cut_mark $max_x, $y;
+			$last_cut_mark = 0;
+		} else {
+			warn "CUTMARK no magic";
+		}
+
 		my ($fg,$bg) = @{ $cols->{txt} };
-		my $tspan = qq{<tspan x="$x" y="$y" style="line-height:2.54;fill-opacity:1;fill:$fg;stroke:none;">};
+		my $tspan = qq{<tspan x="$x" y="$y" style="line-height:2.54;fill-opacity:1;fill:$fg;stroke:none;">\n};
 
 		my $x_pos = $x;
 		foreach my $i ( @cols_order ) {
@@ -236,15 +277,12 @@ foreach my $i ( 0 .. $#line_parts ) {
 			$x_pos += $max_len[$i] * $font_w;
 		}
 
-		$tspan .= qq{</tspan>};
+		$tspan .= qq{</tspan>\n};
 		push @later,sprintf $tspan, @$line;
 		$y += 2.54;
 
 		# swap pin colors for line stripes
-		foreach my $swap (qw( pins txt )) {
-			my ( $c1, $c2 ) = @{ $cols->{$swap} };
-			$cols->{$swap} = [ $c2, $c1 ];
-		};
+		swap_cols $_ foreach qw( pins txt );
 
 	} else {
 
@@ -264,12 +302,12 @@ if ( $opt_svg ) {
        id="text4506"
        y="$x"
        x="$y"
-       style="font-size:2.34px;line-height:2.54px;font-family:'Andale Mono';fill-opacity:1;stroke:none;stroke-width:0.10;stroke-opacity:1"
+       style="font-size:2.34px;line-height:2.54px;font-family:'Andale Mono';fill-opacity:1;stroke:none;stroke-opacity:1"
        xml:space="preserve">
 
 	}; #svg
 
-	print @later, qq{
+	print @later, @cut_marks, qq{
 </text>
 </g>
 </svg>
