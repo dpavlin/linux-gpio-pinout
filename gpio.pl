@@ -40,12 +40,17 @@ my $line_i = 0;
 my $include = 0;
 while(<DATA>) {
 	chomp;
-	if ( m/^#\s*$model/ ) {
-		$include = 1;
+	if ( m/^#\s(.+)/ ) {
+		warn "MODEL [$1] == [$model] ?\n";
+		if ( $model =~ m/$1/ ) {
+			$include = 1;
+		} else {
+			$include = 0;
+		}
 	} elsif ( m/^#\s+/ ) {
-		$include = 0;
+		$include = 1;
 	} elsif ( $include ) {
-		push @{ $pins->{$1} }, $line_i while ( m/\t(P\w\d+)/g );
+		push @{ $pins->{$1} }, $line_i while ( m/\t(\w+\d+)/g );
 
 		push @lines, $_;
 
@@ -64,7 +69,7 @@ my $pin_function;
 open(my $fh, '<', '/sys/kernel/debug/pinctrl/pinctrl-handles');
 while(<$fh>) {
 	chomp;
-	if ( m/group: (P\w\d+)\s.+function: (\S+)/ ) {
+	if ( m/group: (\w+\d+)\s.+function: (\S+)/ ) {
 		my ($pin, $function) = ($1,$2);
 		$pin_function->{$pin} = $function;
 
@@ -87,6 +92,8 @@ warn "XXX $pin $line";
 		}
 	}
 }
+
+warn "# pin_function = ",dump($pin_function);
 
 my @max_len = ( 0,0,0,0 );
 my @line_parts;
@@ -231,6 +238,7 @@ my $line_fmt = qq{<line x1="%s" y1="%s" x2="%s" y2="%s" style="stroke:$fg;stroke
 my @cut_marks;
 sub cut_mark {
 	my ($x,$y) = @_;
+	return unless $opt_svg;
 	push @cut_marks, printf($line_fmt, $x-5, $y-$font_b,   $x+5, $y-$font_b);
 	push @cut_marks, printf($line_fmt, $x,   $y-$font_b-5, $x,   $y-$font_b+5);
 }
@@ -244,7 +252,6 @@ my $last_cut_mark = 0;
 foreach my $i ( 0 .. $#line_parts ) {
 	$i = $#line_parts - $i if $opt_vertical;
 	my $line = $line_parts[$i];
-	warn "# LINE ",dump($line);
 
 	if ( $opt_svg ) {
 
@@ -407,3 +414,25 @@ __DATA__
 6	PI20 UART7_TX		5	PH3
 4	PI21 UART7_RX		3	PH5
 2	3V3			1	SATA-5V
+
+# Raspberry Pi 3 Model B Rev 1.2
+1	3.3v			2 	5v
+3	gpio2 (SDA.1)		4 	5v
+5	gpio3 (SCL.1)		6 	0v
+7	gpio4 (GPIO. 7)		8 	gpio14  (TxD)
+9	0v			10	gpio15  (RxD)
+11	gpio17 (GPIO. 0)	12	gpio18  (GPIO. 1)
+13	gpio27 (GPIO. 2)	14	0v
+15	gpio22 (GPIO. 3)	16	gpio23  (GPIO. 4)
+17	3.3v			18	gpio24  (GPIO. 5)
+19	gpio10 (MOSI)		20	0v
+21	gpio9 (MISO)		22	gpio25  (GPIO. 6) 
+23	gpio11 (SCLK)		24	gpio8   (CE0)
+25	0v			26	gpio7   (CE1)
+27	gpio0 (SDA.0)		28	gpio1   (SCL.0)
+29	gpio5 (GPIO.21)		30	0v
+31	gpio6 (GPIO.22)		32	gpio12  (GPIO.26)
+33	gpio13 (GPIO.23)	34	0v
+35	gpio19 (GPIO.24)	36	gpio16  (GPIO.27)
+37	gpio26 (GPIO.25)	38	gpio20  (GPIO.28)
+39	0v			40	gpio21  (GPIO.29)
