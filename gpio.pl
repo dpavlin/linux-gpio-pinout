@@ -6,14 +6,16 @@ use Data::Dump qw(dump);
 use Getopt::Long;
 
 my $opt_svg = $ENV{SVG} || 0;
-my $opt_alt = $ENV{ALT} || 1;
-my $opt_invert = $ENV{INVERT} = 1;
+my $opt_alt = $ENV{ALT} || 0;
+my $opt_invert = $ENV{INVERT} = 0;
 my $opt_vertical = $ENV{VERTICAL} = 0;
+my $opt_kernel = $ENV{kernel} = 1;
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
 	'invert!' => \$opt_invert,
 	'vertical!' => \$opt_vertical,
+	'kernel!' => \$opt_kernel,
 );
 
 # svg font hints
@@ -59,16 +61,26 @@ die "add pin definition for # $model" unless $pins;
 
 warn "# pins ",dump($pins);
 
+my $pin_function;
+
 open(my $fh, '<', '/sys/kernel/debug/pinctrl/pinctrl-handles');
 while(<$fh>) {
 	chomp;
 	if ( m/group: (P\w\d+)\s.+function: (\S+)/ ) {
-		my ($pin, $function) = ($1,$2); 
+		my ($pin, $function) = ($1,$2);
+		$pin_function->{$pin} = $function;
+
+		next unless $opt_kernel;
+
 		if ( $pins->{$pin} ) {
 			foreach my $line ( @{$pins->{$pin}} ) {
 warn "XXX $pin $line";
 				my $t = $lines[$line];
-				$t =~ s/$pin/$pin [$function]/ || die "can't find $pin in [$t]";
+				if ( $opt_svg ) {
+					$t =~ s/$pin/[$function]/;
+				} else {
+					$t =~ s/$pin/$pin [$function]/ || die "can't find $pin in [$t]";
+				}
 				$lines[$line] = $t;
 				warn "# $line: $lines[$line]\n";
 			}
@@ -76,7 +88,7 @@ warn "XXX $pin $line";
 			warn "IGNORED: pin $pin function $function\n";
 		}
 	}
-};
+}
 
 my @max_len = ( 0,0,0,0 );
 my @line_parts;
@@ -85,7 +97,8 @@ foreach my $line (@lines) {
 		push @line_parts, [ $line ] unless $opt_svg;
 		next;
 	}
-	$line =~ s/\s*\([^\)]+\)//g && warn "NUKED ALT";
+	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
+
 	my @v = split(/\s*\t+\s*/,$line,4);
 	push @line_parts, [ @v ];
 	foreach my $i ( 0 .. 3 ) {
@@ -132,14 +145,18 @@ if ( $opt_svg ) {
 my @later;
 
 my $cols = {	# foreground background
+	txt  => [ '#000000', '#ffffff' ],
 	pins => [ '#ffffff', '#ff00ff' ],
 	vcc  => [ '#ff0000', '#ffff00' ],
 	gnd  => [ '#000000', '#00ffff' ],
+	i2c  => [ '#008888', '#ffcccc' ],
+	uart => [ '#880088', '#ccffcc' ],
+	spi  => [ '#888800', '#ccccff' ],
 };
 
 sub svg_style {
 	my ($name,$x,$y,$col) = @_;
-	$y -= 2.30; # shift box overlay to right vertical position based on font baseline
+	$y -= 2.10; # shift box overlay to right vertical position based on font baseline
 
 	sub rect {
 		my ($x,$y,$col,$fill) = @_;
@@ -147,13 +164,19 @@ sub svg_style {
 
 	}
 
-	if ( $name =~ m/^\d+$/ ) { # pins
-		my ( $c1, $c2 ) = @{ $cols->{pins} };
-    		rect $x,$y,$col,$c1;
-		return qq{ style="fill:$c2"};
+	if ( $name =~ m/^(\d+)$/ ) { # pins
+		my $pin = $1;
+		my ( $fg, $bg ) = @{ $cols->{pins} };
+    		rect $x,$y,$col,$fg;
+		if ( $pin == 1 ) {
+			my $cx = $x + ( $max_len[$col]*$font_w  );
+			my $cy = $y + ( 2.54  );
+			print qq{<polygon points="$x,$y $cx,$y $x,$cy $x,$y" stroke="$fg" stroke-width="0.25" fill="#000000" />};
+		}
+		return qq{ style="fill:$bg"};
 	}
 
-	if ( $name =~ m/(VCC|3V3)/i ) {
+	if ( $name =~ m/(VCC|3V3|3.3V)/i ) {
 		my ($fg,$bg) = @{ $cols->{vcc} };
     		rect $x,$y,$col,$bg;
 		return qq{ style="fill:$fg"};
@@ -161,7 +184,16 @@ sub svg_style {
 		my ($fg,$bg) = @{ $cols->{gnd} };
     		rect $x,$y,$col,$bg;
 		return qq{ style="fill:$fg"};
+	} elsif ( $name =~ m/\[(\w+)\d\]/ ) { # kernel
+		my $dev = $1;
+		if ( my ($fg,$bg) = @{ $cols->{$dev} } ) {
+			rect $x,$y,$col,$bg;
+			return qq{ style="fill:$fg"};
+		}
 	} else {
+		my ( $fg, $bg ) = @{ $cols->{txt} };
+    		rect $x,$y,$col,$bg;
+		#return qq{ style="fill:$fg"};
 		return '';
 	}
 }
@@ -183,7 +215,8 @@ foreach my $i ( 0 .. $#line_parts ) {
 
 	if ( $opt_svg ) {
 
-		my $tspan = qq{<tspan x="$x" y="$y" style="font-size:2.82222223px;line-height:2.53999996px;font-family:'Andale Mono';fill-opacity:1;fill:$txt_color;stroke:none;">};
+		my ($fg,$bg) = @{ $cols->{txt} };
+		my $tspan = qq{<tspan x="$x" y="$y" style="line-height:2.54;fill-opacity:1;fill:$fg;stroke:none;">};
 
 		my $x_pos = $x;
 		foreach my $i ( @cols_order ) {
@@ -196,9 +229,11 @@ foreach my $i ( 0 .. $#line_parts ) {
 		push @later,sprintf $tspan, @$line;
 		$y += 2.54;
 
-		# swap pin colors
-		my ( $c1, $c2 ) = @{ $cols->{pins} };
-		$cols->{pins} = [ $c2, $c1 ];
+		# swap pin colors for line stripes
+		foreach my $swap (qw( pins txt )) {
+			my ( $c1, $c2 ) = @{ $cols->{$swap} };
+			$cols->{$swap} = [ $c2, $c1 ];
+		};
 
 	} else {
 
@@ -218,7 +253,7 @@ if ( $opt_svg ) {
        id="text4506"
        y="$x"
        x="$y"
-       style="font-size:2.82222223px;line-height:2.53999996px;font-family:'Andale Mono';fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-opacity:1"
+       style="font-size:2.34px;line-height:2.54px;font-family:'Andale Mono';fill-opacity:1;stroke:none;stroke-width:0.10;stroke-opacity:1"
        xml:space="preserve">
 
 	}; #svg
