@@ -99,6 +99,7 @@ foreach my $line (@lines) {
 	}
 	$line =~ s/(\[uart\d)(\]\s[^\t]*(rx|tx))/$1 $3$2/gi;
 	$line =~ s/(\[i2c\d)(\]\s[^\t]*(sck|sda))/$1 $3$2/gi;
+	$line =~ s/(\[spi\d)(\]\s[^\t]*(miso|mosi|clk|cs))/$1 $3$2/gi;
 	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
 
 	my @v = split(/\s*\t+\s*/,$line,4);
@@ -151,9 +152,9 @@ my $cols = {	# foreground background
 	pins => [ '#ffffff', '#ff00ff' ],
 	vcc  => [ '#ff0000', '#ffff00' ],
 	gnd  => [ '#000000', '#00ffff' ],
-	i2c  => [ '#008888', '#ffcccc' ],
-	uart => [ '#880088', '#ccffcc' ],
-	spi  => [ '#888800', '#ccccff' ],
+	i2c  => [ '#008800', '#ffcccc' ],
+	uart => [ '#000088', '#ccffcc' ],
+	spi  => [ '#880000', '#ccccff' ],
 };
 
 sub svg_style {
