@@ -228,7 +228,9 @@ foreach my $i ( 0 .. $#line_parts ) {
 		my $x_pos = $x;
 		foreach my $i ( @cols_order ) {
 			next unless $line->[$i];
-			$tspan .= qq{<tspan x="$x_pos"}.svg_style($line->[$i],$x_pos,$y,$i).sprintf( '>%' . $cols_align[$i] . $max_len[$i] . 's</tspan>', $line->[$i]);
+			my $text_anchor = 'middle';
+			my $x2 = $x_pos + ( $max_len[$i] * $font_w ) / 2;
+			$tspan .= qq{<tspan x="$x2" text-anchor="$text_anchor"}.svg_style($line->[$i],$x_pos,$y,$i).sprintf( '>%' . $cols_align[$i] . $max_len[$i] . 's</tspan>', $line->[$i]);
 			$x_pos += $max_len[$i] * $font_w;
 		}
 
