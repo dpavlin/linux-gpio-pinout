@@ -178,7 +178,7 @@ sub svg_style {
 
 	sub rect {
 		my ($x,$y,$col,$fill) = @_;
-    		print qq{<rect x="$x" y="$y" height="2.54" width="}, $max_len[$col] * $font_w, qq{" style="opacity:1;fill:$fill;stroke:#ffffff;stroke-width:0.10" />\n};
+    		print qq{<rect x="$x" y="$y" height="2.54" width="}, $max_len[$col] * $font_w, qq{" style="fill:$fill;stroke:#ffffff;stroke-width:0.10" />\n};
 
 	}
 
@@ -273,7 +273,7 @@ foreach my $i ( 0 .. $#line_parts ) {
 		}
 
 		my ($fg,$bg) = @{ $cols->{txt} };
-		my $tspan = qq{<tspan x="$x" y="$y" style="line-height:2.54;fill-opacity:1;fill:$fg;stroke:none;">\n};
+		my $tspan = qq{<tspan x="$x" y="$y" style="line-height:2.54;fill:$fg;stroke:none;">\n};
 
 		my $x_pos = $x;
 		foreach my $i ( @cols_order ) {
@@ -309,7 +309,7 @@ if ( $opt_svg ) {
        id="text4506"
        y="$x"
        x="$y"
-       style="font-size:2.34px;line-height:2.54px;font-family:'Andale Mono';fill-opacity:1;stroke:none;stroke-opacity:1"
+       style="font-size:2.34px;line-height:2.54px;font-family:'Andale Mono';stroke:none"
        xml:space="preserve">
 
 	}; #svg
