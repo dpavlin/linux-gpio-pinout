@@ -65,13 +65,16 @@ die "add pin definition for # $model" unless $pins;
 warn "# pins ",dump($pins);
 
 my $pin_function;
+my $device;
 
 open(my $fh, '<', '/sys/kernel/debug/pinctrl/pinctrl-handles');
 while(<$fh>) {
 	chomp;
-	if ( m/group: (\w+\d+)\s.+function: (\S+)/ ) {
+	if ( m/device: [0-9a-f]+\.(\w+)/ ) {
+		$device = $1;
+	} elsif ( m/group: (\w+\d+)\s.+function: (\S+)/ ) {
 		my ($pin, $function) = ($1,$2);
-		$pin_function->{$pin} = $function;
+		$pin_function->{$pin} = "$device $function";
 
 		next unless $opt_kernel;
 
@@ -80,9 +83,9 @@ while(<$fh>) {
 warn "XXX $pin $line";
 				my $t = $lines[$line];
 				if ( $opt_svg ) {
-					$t =~ s/$pin/[$function]/;
+					$t =~ s/$pin/[$device $function]/;
 				} else {
-					$t =~ s/$pin/$pin [$function]/ || die "can't find $pin in [$t]";
+					$t =~ s/$pin/$pin [$device $function]/ || die "can't find $pin in [$t]";
 				}
 				$lines[$line] = $t;
 				warn "# $line: $lines[$line]\n";
@@ -102,9 +105,9 @@ foreach my $line (@lines) {
 		push @line_parts, [ $line ] unless $opt_svg;
 		next;
 	}
-	$line =~ s/(\[uart\d)(\]\s[^\t]*(rx|tx))/$1 $3$2/gi;
-	$line =~ s/(\[i2c\d)(\]\s[^\t]*(sck|sda))/$1 $3$2/gi;
-	$line =~ s/(\[spi\d)(\]\s[^\t]*(miso|mosi|clk|cs))/$1 $3$2/gi;
+	$line =~ s/(\[(:?uart|serial))([^\t]*\]\s[^\t]*(rx|tx)d?)/$1 $3$2/gi;
+	$line =~ s/(\[i2c)([^\t]*\]\s[^\t]*(sclk?|sda))/$1 $3$2/gi;
+	$line =~ s/(\[spi)([^\t]*\]\s[^\t]*(miso|mosi|s?clk|c[se]\d*))/$1 $3$2/gi;
 	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
 
 	my @v = split(/\s*\t+\s*/,$line,4);
