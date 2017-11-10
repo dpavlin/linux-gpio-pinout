@@ -60,10 +60,10 @@ while(<DATA>) {
 	}
 }
 
+die "add pin definition for # $model" unless $pins;
+
 shift(@lines) while ( ! $lines[0] );	# remove empty at beginning
 pop(@lines) while ( ! $lines[-1] );	# remove empty at end
-
-die "add pin definition for # $model" unless $pins;
 
 warn "# pins ",dump($pins);
 
@@ -433,25 +433,26 @@ __DATA__
 4	PI21 UART7_RX		3	PH5
 2	3V3			1	SATA-5V
 
-# Raspberry Pi 3 Model B Rev 1.2
+# Raspberry Pi
 1	3.3v			2 	5v
 3	gpio2 (SDA.1)		4 	5v
 5	gpio3 (SCL.1)		6 	0v
-7	gpio4 (GPIO. 7)		8 	gpio14  (TxD)
+7	gpio4 (WPi 7)		8 	gpio14  (TxD)
 9	0v			10	gpio15  (RxD)
-11	gpio17 (GPIO. 0)	12	gpio18  (GPIO. 1)
-13	gpio27 (GPIO. 2)	14	0v
-15	gpio22 (GPIO. 3)	16	gpio23  (GPIO. 4)
-17	3.3v			18	gpio24  (GPIO. 5)
+11	gpio17 (WPi 0)		12	gpio18  (WPi 1)
+13	gpio27 (WPi 2)		14	0v
+15	gpio22 (WPi 3)		16	gpio23  (WPi 4)
+17	3.3v			18	gpio24  (WPi 5)
 19	gpio10 (MOSI)		20	0v
-21	gpio9 (MISO)		22	gpio25  (GPIO. 6) 
+21	gpio9 (MISO)		22	gpio25  (WPi 6) 
 23	gpio11 (SCLK)		24	gpio8   (CE0)
 25	0v			26	gpio7   (CE1)
+# Raspberry Pi 3 Model B Rev 1.2
 27	gpio0 (SDA.0)		28	gpio1   (SCL.0)
-29	gpio5 (GPIO.21)		30	0v
-31	gpio6 (GPIO.22)		32	gpio12  (GPIO.26)
-33	gpio13 (GPIO.23)	34	0v
-35	gpio19 (GPIO.24)	36	gpio16  (GPIO.27)
-37	gpio26 (GPIO.25)	38	gpio20  (GPIO.28)
-39	0v			40	gpio21  (GPIO.29)
+29	gpio5 (WPi 21)		30	0v
+31	gpio6 (WPi 22)		32	gpio12  (WPi 26)
+33	gpio13 (WPi 23)		34	0v
+35	gpio19 (WPi 24)		36	gpio16  (WPi 27)
+37	gpio26 (WPi 25)		38	gpio20  (WPi 28)
+39	0v			40	gpio21  (WPi 29)
 
