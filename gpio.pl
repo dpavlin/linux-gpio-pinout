@@ -161,7 +161,7 @@ my $cols = {	# foreground background
 	vcc  => [ '#ff0000', '#ffff00' ],
 	gnd  => [ '#000000', '#00ffff' ],
 	i2c  => [ '#008800', '#ffcccc' ],
-	uart => [ '#000088', '#ccffcc' ],
+	serial=>[ '#000088', '#ccffcc' ],
 	spi  => [ '#880000', '#ccccff' ],
 };
 
@@ -211,7 +211,7 @@ sub svg_style {
 		my ($fg,$bg) = @{ $cols->{gnd} };
     		rect $x,$y,$col,$bg;
 		return qq{ style="fill:$fg"};
-	} elsif ( $name =~ m/\[(\w+)\d/ ) { # kernel
+	} elsif ( $name =~ m/\[(\w+)/ ) { # kernel
 		my $dev = $1;
 		my ($fg,$bg) = @{ $cols->{txt} };
 		($fg,$bg) = @{ $cols->{$dev} } if exists $cols->{$dev};
