@@ -203,11 +203,11 @@ sub svg_style {
 		return qq{ style="fill:$bg"};
 	}
 
-	if ( $name =~ m/(VCC|3V3|3.3V)/i ) {
+	if ( $name =~ m/(VCC|3V3|3.3V|5v)/i ) {
 		my ($fg,$bg) = @{ $cols->{vcc} };
     		rect $x,$y,$col,$bg;
 		return qq{ style="fill:$fg"};
-	} elsif ( $name =~ m/(G(ND|Round)|VSS)/i ) {
+	} elsif ( $name =~ m/(G(ND|Round)|VSS|0v)/i ) {
 		my ($fg,$bg) = @{ $cols->{gnd} };
     		rect $x,$y,$col,$bg;
 		return qq{ style="fill:$fg"};
