@@ -110,6 +110,10 @@ foreach my $line (@lines) {
 	$line =~ s/(\[spi)([^\t]*\]\s[^\t]*(miso|mosi|s?clk|c[se]\d*))/$1 $3$2/gi;
 	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
 
+	# shorten duplicate kernel device/function
+	$line =~ s/\[serial (\w+) (uart\d+)\]/[$2 $1]/g;
+	$line =~ s/\[(\w+) (\w+) \1(\d+)\]/[$1$3 $2]/g;
+
 	my @v = split(/\s*\t+\s*/,$line,4);
 	push @line_parts, [ @v ];
 	foreach my $i ( 0 .. 3 ) {
