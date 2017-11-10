@@ -49,8 +49,6 @@ while(<DATA>) {
 		} else {
 			$include = 0;
 		}
-	} elsif ( m/^#\s+/ ) {
-		$include = 1;
 	} elsif ( $include ) {
 		push @{ $pins->{$1} }, $line_i while ( m/\t(\w+\d+)/g );
 
@@ -61,6 +59,9 @@ while(<DATA>) {
 		warn "IGNORE: [$_]\n";
 	}
 }
+
+shift(@lines) while ( ! $lines[0] );	# remove empty at beginning
+pop(@lines) while ( ! $lines[-1] );	# remove empty at end
 
 die "add pin definition for # $model" unless $pins;
 
@@ -322,6 +323,10 @@ foreach my $i ( 0 .. $#line_parts ) {
 }
 
 if ( $opt_svg ) {
+	cut_mark $x,$y;
+	cut_mark $max_x,$y;
+	line $x, $y, $max_x if $opt_lines;
+
 	print qq{
     <text
        id="text4506"
@@ -337,7 +342,7 @@ if ( $opt_svg ) {
 }
 
 __DATA__
-# Cubietech Cubieboard2
+# Cubietech Cubieboard
 ## U14 (Next to SATA connector)
 ### 	SPI0
 48 	PI13 (SPI0-MISO/UART6-RX/EINT25) 	47 	PI11 (SPI0-CLK/UART5-RX/EINT23)
@@ -366,7 +371,6 @@ __DATA__
 4 	PD1 (LCDD1/LVDS0N0) 			3 	PD2 (LCDD2/LVDS0P1)
 2 	Ground 					1 	PD0 (LCDD0/LVDSP0)
 
-# Cubietech Cubieboard2
 ## U15 (Between Ethernet port and USB ports)
 ### CSI1/TS
 1 	VCC-5V 					2 	PH15 (CSI1-PWR/EINT15)
@@ -450,3 +454,4 @@ __DATA__
 35	gpio19 (GPIO.24)	36	gpio16  (GPIO.27)
 37	gpio26 (GPIO.25)	38	gpio20  (GPIO.28)
 39	0v			40	gpio21  (GPIO.29)
+
