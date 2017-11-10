@@ -105,7 +105,7 @@ foreach my $line (@lines) {
 		push @line_parts, [ $line ] unless $opt_svg;
 		next;
 	}
-	$line =~ s/(\[(:?uart|serial))([^\t]*\]\s[^\t]*(rx|tx)d?)/$1 $3$2/gi;
+	$line =~ s/(\[(?:uart|serial))([^\t]*\]\s[^\t]*(rx|tx)d?)/$1 $3$2/gi;
 	$line =~ s/(\[i2c)([^\t]*\]\s[^\t]*(sclk?|sda))/$1 $3$2/gi;
 	$line =~ s/(\[spi)([^\t]*\]\s[^\t]*(miso|mosi|s?clk|c[se]\d*))/$1 $3$2/gi;
 	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
