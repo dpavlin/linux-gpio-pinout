@@ -239,8 +239,8 @@ my @cut_marks;
 sub cut_mark {
 	my ($x,$y) = @_;
 	return unless $opt_svg;
-	push @cut_marks, printf($line_fmt, $x-5, $y-$font_b,   $x+5, $y-$font_b);
-	push @cut_marks, printf($line_fmt, $x,   $y-$font_b-5, $x,   $y-$font_b+5);
+	push @cut_marks, sprintf($line_fmt, $x-5, $y-$font_b,   $x+5, $y-$font_b);
+	push @cut_marks, sprintf($line_fmt, $x,   $y-$font_b-5, $x,   $y-$font_b+5);
 }
 cut_mark $x, $y;
 my $max_x = $x;
@@ -269,7 +269,7 @@ foreach my $i ( 0 .. $#line_parts ) {
 			cut_mark $max_x, $y;
 			$last_cut_mark = 0;
 		} else {
-			warn "CUTMARK no magic";
+			#warn "CUTMARK no magic";
 		}
 
 		my ($fg,$bg) = @{ $cols->{txt} };
@@ -314,11 +314,7 @@ if ( $opt_svg ) {
 
 	}; #svg
 
-	print @later, @cut_marks, qq{
-</text>
-</g>
-</svg>
-	}; #svg
+	print @later, qq{</text>\n}, @cut_marks, qq{</g>\n</svg>};
 
 }
 
