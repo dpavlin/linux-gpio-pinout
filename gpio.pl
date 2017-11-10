@@ -7,15 +7,17 @@ use Getopt::Long;
 
 my $opt_svg = $ENV{SVG} || 0;
 my $opt_alt = $ENV{ALT} || 0;
-my $opt_invert = $ENV{INVERT} = 0;
-my $opt_vertical = $ENV{VERTICAL} = 0;
-my $opt_kernel = $ENV{kernel} = 1;
+my $opt_invert = $ENV{INVERT} || 0;
+my $opt_vertical = $ENV{VERTICAL} || 0;
+my $opt_zebra = $ENV{ZEBRA} || 0;
+my $opt_lines = $ENV{LINES} || 0;
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
 	'invert!' => \$opt_invert,
 	'vertical!' => \$opt_vertical,
-	'kernel!' => \$opt_kernel,
+	'zebra!' => \$opt_zebra,
+	'lines!' => \$opt_lines,
 );
 
 # svg font hints
@@ -75,8 +77,6 @@ while(<$fh>) {
 	} elsif ( m/group: (\w+\d+)\s.+function: (\S+)/ ) {
 		my ($pin, $function) = ($1,$2);
 		$pin_function->{$pin} = "$device $function";
-
-		next unless $opt_kernel;
 
 		if ( $pins->{$pin} ) {
 			foreach my $line ( @{$pins->{$pin}} ) {
@@ -254,6 +254,12 @@ my $max_x = $x;
 $max_x += $max_len[$_] * $font_w foreach ( 0 .. 3 );
 cut_mark $max_x, $y;
 
+sub line {
+	my ($x,$y,$max_x) = @_;
+	push @cut_marks, sprintf($line_fmt, $x, $y-$font_b, $max_x, $y-$font_b);
+}
+
+
 my $last_cut_mark = 0;
 
 foreach my $i ( 0 .. $#line_parts ) {
@@ -268,6 +274,7 @@ foreach my $i ( 0 .. $#line_parts ) {
 				cut_mark $x, $y;
 				cut_mark $max_x, $y;
 				$last_cut_mark = 1;
+				line $x, $y, $max_x if $opt_lines;
 				$y += 15; # make spacing between pinouts
 			}
 		} elsif ( $last_cut_mark ) {
@@ -278,6 +285,8 @@ foreach my $i ( 0 .. $#line_parts ) {
 		} else {
 			#warn "CUTMARK no magic";
 		}
+
+		line $x, $y, $max_x if $opt_lines && exists $line->[1];
 
 		my ($fg,$bg) = @{ $cols->{txt} };
 		my $tspan = qq{<tspan x="$x" y="$y" style="line-height:2.54;fill:$fg;stroke:none;">\n};
@@ -295,8 +304,10 @@ foreach my $i ( 0 .. $#line_parts ) {
 		push @later,sprintf $tspan, @$line;
 		$y += 2.54;
 
-		# swap pin colors for line stripes
-		swap_cols $_ foreach qw( pins txt );
+		# swap pin colors for line stripe
+		if ( $opt_zebra ) {
+			swap_cols $_ foreach qw( pins txt );
+		}
 
 	} else {
 
