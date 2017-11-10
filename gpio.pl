@@ -210,10 +210,10 @@ sub svg_style {
 		return qq{ style="fill:$fg"};
 	} elsif ( $name =~ m/\[(\w+)\d/ ) { # kernel
 		my $dev = $1;
-		if ( my ($fg,$bg) = @{ $cols->{$dev} } ) {
-			rect $x,$y,$col,$bg;
-			return qq{ style="fill:$fg"};
-		}
+		my ($fg,$bg) = @{ $cols->{txt} };
+		($fg,$bg) = @{ $cols->{$dev} } if exists $cols->{$dev};
+		rect $x,$y,$col,$bg;
+		return qq{ style="fill:$fg"};
 	} else {
 		my ( $fg, $bg ) = @{ $cols->{txt} };
     		rect $x,$y,$col,$bg;
