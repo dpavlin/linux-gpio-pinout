@@ -83,8 +83,9 @@ my $device;
 open(my $fh, '<', $opt_read . '/sys/kernel/debug/pinctrl/pinctrl-handles');
 while(<$fh>) {
 	chomp;
-	if ( m/device: [0-9a-f]+\.(\w+)/ ) {
+	if ( m/device: (\S+)/ ) {
 		$device = $1;
+		$device =~ s/^[0-9a-f]*\.//; # remove hex address
 	} elsif ( m/group: (\w+\d+)\s.+function: (\S+)/ ) {
 		my ($pin, $function) = ($1,$2);
 		$pin_function->{$pin} = "$device $function";
