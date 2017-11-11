@@ -1,0 +1,87 @@
+Requested pin control handlers their pinmux maps:
+device: 1c28000.serial current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB22 (40) function: uart0 (22)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB23 (41) function: uart0 (22)
+device: 1c28800.serial current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI18 (171) function: uart2 (4)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI19 (172) function: uart2 (4)
+device: 1c28c00.serial current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PG6 (119) function: uart3 (37)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PG7 (120) function: uart3 (37)
+device: 1c29000.serial current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PG10 (123) function: uart4 (38)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PG11 (124) function: uart4 (38)
+device: 1c29400.serial current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI10 (163) function: uart5 (41)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI11 (164) function: uart5 (41)
+device: 1c29800.serial current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI12 (165) function: uart6 (9)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI13 (166) function: uart6 (9)
+device: 1c29c00.serial current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI20 (173) function: uart7 (10)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI21 (174) function: uart7 (10)
+device: 1c50000.ethernet current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA0 (0) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA1 (1) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA2 (2) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA3 (3) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA4 (4) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA5 (5) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA6 (6) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA7 (7) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA8 (8) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA9 (9) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA10 (10) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA11 (11) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA12 (12) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA13 (13) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA14 (14) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA15 (15) function: gmac (5)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA16 (16) function: gmac (5)
+device: 1c2ac00.i2c current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB0 (18) function: i2c0 (12)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB1 (19) function: i2c0 (12)
+device: 1c2b000.i2c current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB18 (36) function: i2c1 (20)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB19 (37) function: i2c1 (20)
+device: 1c0f000.mmc current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF0 (107) function: mmc0 (34)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF0 (107)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF1 (108) function: mmc0 (34)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF1 (108)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF2 (109) function: mmc0 (34)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF2 (109)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF3 (110) function: mmc0 (34)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF3 (110)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF4 (111) function: mmc0 (34)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF4 (111)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF5 (112) function: mmc0 (34)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF5 (112)config 00001e09
+config 00000105
+device: leds current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PH20 (145) function: gpio_out (1)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PH21 (146) function: gpio_out (1)
+device: 1c13400.phy current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PH4 (129) function: gpio_in (0)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PH4 (129)config 00000105
+device: 1c21800.ir current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB4 (22) function: ir0 (14)
