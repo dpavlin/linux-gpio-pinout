@@ -1,0 +1,46 @@
+Requested pin control handlers their pinmux maps:
+device: 3f201000.serial current state: default
+  state: default
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio32 (32) function: alt3 (7)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio32 (32)config 00000000
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio33 (33) function: alt3 (7)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio33 (33)config 00000002
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio43 (43) function: alt0 (4)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio43 (43)config 00000000
+device: 3f202000.sdhost current state: default
+  state: default
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio48 (48) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio49 (49) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio50 (50) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio51 (51) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio52 (52) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio53 (53) function: alt0 (4)
+device: 3f300000.mmc current state: default
+  state: default
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio34 (34) function: alt3 (7)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio34 (34)config 00000000
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio35 (35) function: alt3 (7)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio35 (35)config 00000002
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio36 (36) function: alt3 (7)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio36 (36)config 00000002
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio37 (37) function: alt3 (7)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio37 (37)config 00000002
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio38 (38) function: alt3 (7)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio38 (38)config 00000002
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio39 (39) function: alt3 (7)
+    type: CONFIGS_PIN controller pinctrl-bcm2835 pin gpio39 (39)config 00000002
+device: 3f204000.spi current state: default
+  state: default
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio9 (9) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio10 (10) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio11 (11) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio8 (8) function: gpio_out (1)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio7 (7) function: gpio_out (1)
+device: 3f804000.i2c current state: default
+  state: default
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio2 (2) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio3 (3) function: alt0 (4)
+device: soc:audio current state: default
+  state: default
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio40 (40) function: alt0 (4)
+    type: MUX_GROUP controller pinctrl-bcm2835 group: gpio41 (41) function: alt0 (4)
