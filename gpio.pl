@@ -5,17 +5,23 @@ use autodie;
 use Data::Dump qw(dump);
 use Getopt::Long;
 
-my $opt_svg = $ENV{SVG} || 0;
-my $opt_alt = $ENV{ALT} || 0;
-my $opt_invert = $ENV{INVERT} || 0;
-my $opt_vertical = $ENV{VERTICAL} || 0;
-my $opt_zebra = $ENV{ZEBRA} || 0;
-my $opt_lines = $ENV{LINES} || 0;
+my $opt_svg = 0;
+my $opt_alt = 0;
+my $opt_invert = 0;
+my $opt_vertical = 0;
+my $opt_horizontal = 0;
+my $opt_edge = 0;
+my $opt_middle = 0;
+my $opt_zebra = 0;
+my $opt_lines = 0;
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
 	'invert!' => \$opt_invert,
-	'vertical!' => \$opt_vertical,
+	'vertical-flip!' => \$opt_vertical,
+	'horizontal-flip!' => \$opt_horizontal,
+	'edge-pins!' => \$opt_edge,
+	'middle-pins!' => \$opt_middle,
 	'zebra!' => \$opt_zebra,
 	'lines!' => \$opt_lines,
 );
@@ -81,7 +87,6 @@ while(<$fh>) {
 
 		if ( $pins->{$pin} ) {
 			foreach my $line ( @{$pins->{$pin}} ) {
-warn "XXX $pin $line";
 				my $t = $lines[$line];
 				if ( $opt_svg ) {
 					$t =~ s/$pin/[$device $function]/;
@@ -116,6 +121,8 @@ foreach my $line (@lines) {
 	$line =~ s/\[(\w+) (\w+) \1(\d+)\]/[$1$3 $2]/g;
 
 	my @v = split(/\s*\t+\s*/,$line,4);
+	@v = ( $v[2], $v[3], $v[0], $v[1] ) if $opt_horizontal;
+
 	push @line_parts, [ @v ];
 	foreach my $i ( 0 .. 3 ) {
 		next unless exists $v[$i];
@@ -130,10 +137,8 @@ warn "# line_parts = ",dump( \@line_parts );
 
 #print "$_\n" foreach @lines;
 
-my $fmt = "%$max_len[0]s %-$max_len[1]s %$max_len[2]s %-$max_len[3]s\n";
-
-my $x = 30.00; # mm
-my $y = 30.00; # mm
+my $x = 20.00; # mm
+my $y = 20.00; # mm
 
 if ( $opt_svg ) {
 	print qq{<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -235,8 +240,35 @@ my $alt_col = 0;
 my @cols_order = ( 0,1,2,3 );
 my @cols_align = ( '','-','','-' ); # sprintf prefix
 
-@cols_order = ( 0,1,3,2 ); # pins outside on the right
-@cols_align = ( '','-','-','' );
+my @cols_shuffle = @cols_order;
+
+if ( $opt_edge ) {
+	# pins outside on the right
+	@cols_shuffle = ( 0,1,3,2 ) if $opt_edge;
+	@cols_align = ( '-','-','','' );
+} elsif ( $opt_middle ) {
+	# pins in middle
+	@cols_shuffle = ( 1,0,2,3 );
+	@cols_align = ( '','','-','-' );
+}
+
+sub cols_shuffle {
+	my ( $what, $order ) = @_;
+	my $new = [];
+	foreach my $i ( 0 .. $#$what ) {
+		$new->[$i] = $what->[ $order->[$i] ];
+	}
+	warn "# cols_shuffle what=",dump($what)," order=",dump($order)," new=",dump($new);
+	return @$new;
+}
+
+@cols_order = cols_shuffle( \@cols_order, \@cols_shuffle );
+@max_len    = cols_shuffle( \@max_len,    \@cols_shuffle );
+
+warn "# cols_order = ",dump( \@cols_order );
+warn "# cols_align = ",dump( \@cols_align );
+
+my $fmt = "%$cols_align[0]$max_len[0]s %$cols_align[1]$max_len[1]s %$cols_align[2]$max_len[2]s %$cols_align[3]$max_len[3]s\n";
 
 
 # cut marks
@@ -293,11 +325,12 @@ foreach my $i ( 0 .. $#line_parts ) {
 		my $tspan = qq{<tspan x="$x" y="$y" style="line-height:2.54;fill:$fg;stroke:none;">\n};
 
 		my $x_pos = $x;
-		foreach my $i ( @cols_order ) {
-			next unless $line->[$i];
+		foreach my $i ( 0 .. $#cols_order ) {
+			my $order = $cols_order[$i];
+			next unless $line->[$order];
 			my $text_anchor = 'middle';
 			my $x2 = $x_pos + ( $max_len[$i] * $font_w ) / 2;
-			$tspan .= qq{<tspan x="$x2" text-anchor="$text_anchor"}.svg_style($line->[$i],$x_pos,$y,$i).sprintf( '>%' . $cols_align[$i] . $max_len[$i] . 's</tspan>', $line->[$i]);
+			$tspan .= qq{<tspan x="$x2" text-anchor="$text_anchor"}.svg_style($line->[$order],$x_pos,$y,$i).sprintf( '>%' . $cols_align[$i] . $max_len[$i] . 's</tspan>', $line->[$order]);
 			$x_pos += $max_len[$i] * $font_w;
 		}
 
@@ -316,7 +349,7 @@ foreach my $i ( 0 .. $#line_parts ) {
 			print $line->[0], "\n";
 		} else {
 			push @$line, '' while ($#$line < 3); # fill-in single row header
-			printf $fmt, @$line;
+			printf $fmt, map { $line->[$_] } @cols_order;
 		}
 
 	}
