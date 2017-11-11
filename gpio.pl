@@ -241,6 +241,7 @@ sub svg_style {
 	} elsif ( $name =~ m/\[(\w+)/ ) { # kernel
 		my $dev = $1;
 		my ($fg,$bg) = @{ $cols->{txt} };
+		$dev = 'serial' if $dev =~ m/^tty/;
 		($fg,$bg) = @{ $cols->{$dev} } if exists $cols->{$dev};
 		rect $x,$y,$col,$bg;
 		return qq{ style="fill:$fg"};
