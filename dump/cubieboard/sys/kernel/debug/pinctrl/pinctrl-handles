@@ -1,0 +1,71 @@
+Requested pin control handlers their pinmux maps:
+device: 1c28000.serial current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB22 (40) function: uart0 (20)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB23 (41) function: uart0 (20)
+device: 1c05000.spi current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI11 (164) function: spi0 (23)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI12 (165) function: spi0 (23)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI13 (166) function: spi0 (23)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PI10 (163) function: spi0 (23)
+device: 1c0b000.ethernet current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA0 (0) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA1 (1) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA2 (2) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA3 (3) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA4 (4) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA5 (5) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA6 (6) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA7 (7) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA8 (8) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA9 (9) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA10 (10) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA11 (11) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA12 (12) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA13 (13) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA14 (14) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA15 (15) function: emac (2)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PA16 (16) function: emac (2)
+device: 1c2ac00.i2c current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB0 (18) function: i2c0 (10)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB1 (19) function: i2c0 (10)
+device: 1c2b000.i2c current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB18 (36) function: i2c1 (18)
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB19 (37) function: i2c1 (18)
+device: 1c0f000.mmc current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF0 (107) function: mmc0 (32)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF0 (107)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF1 (108) function: mmc0 (32)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF1 (108)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF2 (109) function: mmc0 (32)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF2 (109)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF3 (110) function: mmc0 (32)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF3 (110)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF4 (111) function: mmc0 (32)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF4 (111)config 00001e09
+config 00000105
+    type: MUX_GROUP controller 1c20800.pinctrl group: PF5 (112) function: mmc0 (32)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PF5 (112)config 00001e09
+config 00000105
+device: leds current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PH20 (145) function: gpio_out (1)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PH20 (145)config 00001409
+    type: MUX_GROUP controller 1c20800.pinctrl group: PH21 (146) function: gpio_out (1)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PH21 (146)config 00001409
+device: 1c13400.phy current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PH4 (129) function: gpio_in (0)
+    type: CONFIGS_GROUP controller 1c20800.pinctrl group PH4 (129)config 00000105
+device: 1c21800.ir current state: default
+  state: default
+    type: MUX_GROUP controller 1c20800.pinctrl group: PB4 (22) function: ir0 (12)
