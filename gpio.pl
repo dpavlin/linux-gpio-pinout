@@ -138,7 +138,7 @@ foreach my $line (@lines) {
 	$line =~ s/\[(\w+) (\w+) \1(\d+)\]/[$1$3 $2]/g;
 
 	my @v = split(/\s*\t+\s*/,$line,4);
-	@v = ( $v[2], $v[3], $v[0], $v[1] ) if $opt_horizontal;
+	@v = ( $v[2], $v[3], $v[0], $v[1] ) if $opt_horizontal && $v[2];
 
 	push @line_parts, [ @v ];
 	foreach my $i ( 0 .. 3 ) {
