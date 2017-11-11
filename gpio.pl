@@ -14,6 +14,7 @@ my $opt_edge = 0;
 my $opt_middle = 0;
 my $opt_zebra = 0;
 my $opt_lines = 0;
+my $opt_read = '';
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
@@ -24,14 +25,17 @@ GetOptions(
 	'middle-pins!' => \$opt_middle,
 	'zebra!' => \$opt_zebra,
 	'lines!' => \$opt_lines,
+	'read=s' => \$opt_read,
 );
 
 # svg font hints
 my $font_w = 1.67; # < 2.54, font is not perfect square
 my $font_b = 2.10; # font baseline position
 
+$opt_read .= '/' unless $opt_read =~ m/\/$/;
+
 sub slurp {
-	open(my $fh, '<', shift);
+	open(my $fh, '<', $opt_read . shift);
 	local $/ = undef;
 	<$fh>;
 }
@@ -76,7 +80,7 @@ warn "# pins ",dump($pins);
 my $pin_function;
 my $device;
 
-open(my $fh, '<', '/sys/kernel/debug/pinctrl/pinctrl-handles');
+open(my $fh, '<', $opt_read . '/sys/kernel/debug/pinctrl/pinctrl-handles');
 while(<$fh>) {
 	chomp;
 	if ( m/device: [0-9a-f]+\.(\w+)/ ) {
