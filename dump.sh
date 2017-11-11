@@ -9,4 +9,7 @@ dump() {
 
 dump /proc/device-tree/model
 dump /sys/kernel/debug/pinctrl/pinctrl-handles
+ls -d /sys/devices/platform/soc*/*.serial/tty/tty* | while read path ; do
+	mkdir -p $dir/$path
+done
 

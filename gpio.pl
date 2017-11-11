@@ -77,6 +77,14 @@ pop(@lines) while ( ! $lines[-1] );	# remove empty at end
 
 warn "# pins ",dump($pins);
 
+my $serial_tty;
+foreach ( glob $opt_read . '/sys//devices/platform/soc*/*.serial/tty/tty*' ) {
+	my @v = split(/\//, $_);
+	$serial_tty->{ $v[-3] } = $v[-1];
+}
+warn "# serial_tty = ",dump($serial_tty);
+
+
 my $pin_function;
 my $device;
 
@@ -85,7 +93,11 @@ while(<$fh>) {
 	chomp;
 	if ( m/device: (\S+)/ ) {
 		$device = $1;
-		$device =~ s/^[0-9a-f]*\.//; # remove hex address
+		if ( my $replace = $serial_tty->{$device} ) {
+			$device = $replace; # replace serial hex with kernel name
+		} else {
+			$device =~ s/^[0-9a-f]*\.//; # remove hex address
+		}
 	} elsif ( m/group: (\w+\d+)\s.+function: (\S+)/ ) {
 		my ($pin, $function) = ($1,$2);
 		$pin_function->{$pin} = "$device $function";
@@ -116,7 +128,7 @@ foreach my $line (@lines) {
 		push @line_parts, [ $line ] unless $opt_svg;
 		next;
 	}
-	$line =~ s/(\[(?:uart|serial))([^\t]*\]\s[^\t]*(rx|tx)d?)/$1 $3$2/gi;
+	$line =~ s/(\[(?:uart|serial|tty\w+))([^\t]*\]\s[^\t]*(rx|tx)d?)/$1 $3$2/gi;
 	$line =~ s/(\[i2c)([^\t]*\]\s[^\t]*(scl?k?|sda))/$1 $3$2/gi;
 	$line =~ s/(\[spi)([^\t]*\]\s[^\t]*(miso|mosi|s?clk|c[se]\d*))/$1 $3$2/gi;
 	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
