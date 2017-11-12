@@ -15,6 +15,7 @@ my $opt_middle = 0;
 my $opt_zebra = 0;
 my $opt_lines = 0;
 my $opt_read = '';
+my $opt_pins = '';
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
@@ -26,6 +27,7 @@ GetOptions(
 	'zebra!' => \$opt_zebra,
 	'lines!' => \$opt_lines,
 	'read=s' => \$opt_read,
+	'pins=s' => \$opt_pins,
 );
 
 # svg font hints
@@ -46,6 +48,8 @@ my $model = slurp('/proc/device-tree/model');
 $model =~ s/\x00$//; # strip kernel NULL
 warn "# model [$model]";
 
+open(DATA, '<', $opt_pins) if $opt_pins;
+
 my @lines;
 my $line_i = 0;
 
@@ -59,7 +63,7 @@ while(<DATA>) {
 		} else {
 			$include = 0;
 		}
-	} elsif ( $include ) {
+	} elsif ( $include || $opt_pins ) {
 		push @{ $pins->{$1} }, $line_i while ( m/\t(\w+\d+)/g );
 
 		push @lines, $_;
@@ -108,7 +112,7 @@ while(<$fh>) {
 				if ( $opt_svg ) {
 					$t =~ s/$pin/[$device $function]/;
 				} else {
-					$t =~ s/$pin/$pin [$device $function]/ || die "can't find $pin in [$t]";
+					$t =~ s/$pin/$pin [$device $function]/ || warn "can't find $pin in [$t]";
 				}
 				$lines[$line] = $t;
 				warn "# $line: $lines[$line]\n";
@@ -359,6 +363,8 @@ foreach my $i ( 0 .. $#line_parts ) {
 		# swap pin colors for line stripe
 		if ( $opt_zebra ) {
 			swap_cols $_ foreach qw( pins txt );
+		} else {
+			swap_cols 'pins';
 		}
 
 	} else {
