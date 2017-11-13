@@ -129,7 +129,7 @@ my @max_len = ( 0,0,0,0 );
 my @line_parts;
 foreach my $line (@lines) {
 	if ( $line =~ m/^#/ ) {
-		push @line_parts, [ $line ] unless $opt_svg;
+		push @line_parts, [ $line ] unless $opt_svg && $line =~ m/^###+/; # SVG doesn't display 3rd level comments
 		next;
 	}
 	$line =~ s/(\[(?:uart|serial|tty\w+))([^\t]*\]\s[^\t]*(rx|tx)d?)/$1 $3$2/gi;
@@ -304,10 +304,10 @@ sub cut_mark {
 	push @cut_marks, sprintf($line_fmt, $x-5, $y-$font_b,   $x+5, $y-$font_b);
 	push @cut_marks, sprintf($line_fmt, $x,   $y-$font_b-5, $x,   $y-$font_b+5);
 }
-cut_mark $x, $y;
+#cut_mark $x, $y;
 my $max_x = $x;
 $max_x += $max_len[$_] * $font_w foreach ( 0 .. 3 );
-cut_mark $max_x, $y;
+#cut_mark $max_x, $y;
 
 sub line {
 	my ($x,$y,$max_x) = @_;
@@ -323,7 +323,10 @@ foreach my $i ( 0 .. $#line_parts ) {
 
 	if ( $opt_svg ) {
 
-		if ( ! exists $line->[0] ) {
+		# not a minimal two column pin description
+		if ( ! exists $line->[1] ) {
+			$last_cut_mark = 1 if $line->[0] =~ m/^##/; # skip comments
+
 			# before first empty line
 			if ( $last_cut_mark == 0 ) {
 				cut_mark $x, $y;
@@ -350,13 +353,23 @@ foreach my $i ( 0 .. $#line_parts ) {
 		foreach my $i ( 0 .. $#cols_order ) {
 			my $order = $cols_order[$i];
 			next unless $line->[$order];
+
 			my $text_anchor = 'middle';
-			my $x2 = $x_pos + ( $max_len[$i] * $font_w ) / 2;
-			$tspan .= qq{<tspan x="$x2" text-anchor="$text_anchor"}.svg_style($line->[$order],$x_pos,$y,$i).sprintf( '>%' . $cols_align[$i] . $max_len[$i] . 's</tspan>', $line->[$order]);
-			$x_pos += $max_len[$i] * $font_w;
+			my $len = $max_len[$i];
+			my $x2 = $x_pos + ( $len * $font_w ) / 2;
+			# is this comment?
+			if ( $#$line == 0 && $line->[$order] =~ s/^#+s*// ) {
+				# comment, center over whole width
+				$len = length($line->[$order]);
+				$x2 = $x + (($max_x-$x)/2); # middle
+				$tspan .= qq{\t<tspan x="$x2" text-anchor="$text_anchor"}.sprintf( '>%' . $cols_align[$i] . $len . 's</tspan>', $line->[0]);
+			} else {
+				$tspan .= qq{\t<tspan x="$x2" text-anchor="$text_anchor"}.svg_style($line->[$order],$x_pos,$y,$i).sprintf( '>%' . $cols_align[$i] . $len . 's</tspan>', $line->[$order]);
+			}
+			$x_pos += $len * $font_w;
 		}
 
-		$tspan .= qq{</tspan>\n};
+		$tspan .= qq{\n</tspan>\n};
 		push @later,sprintf $tspan, @$line;
 		$y += 2.54;
 
