@@ -16,6 +16,7 @@ my $opt_zebra = 0;
 my $opt_lines = 0;
 my $opt_read = '';
 my $opt_pins = '';
+my $opt_color = 0;
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
@@ -28,6 +29,7 @@ GetOptions(
 	'lines!' => \$opt_lines,
 	'read=s' => \$opt_read,
 	'pins=s' => \$opt_pins,
+	'color' => \$opt_color,
 );
 
 # svg font hints
@@ -208,6 +210,9 @@ swap_cols 'txt' if $opt_invert;
 
 sub svg_style {
 	my ($name,$x,$y,$col) = @_;
+
+	return '' unless $opt_color;
+
 	$y -= $font_b; # shift box overlay to right vertical position based on font baseline
 
 	sub rect {
