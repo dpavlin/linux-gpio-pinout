@@ -78,9 +78,7 @@ while(<DATA>) {
 
 die "add pin definition for # $model" unless $pins;
 
-shift(@lines) while ( ! $lines[0] );	# remove empty at beginning
-pop(@lines) while ( ! $lines[-1] );	# remove empty at end
-
+#warn "# lines ",dump( \@lines );
 warn "# pins ",dump($pins);
 
 my $serial_tty;
@@ -129,6 +127,10 @@ warn "# pin_function = ",dump($pin_function);
 
 my @max_len = ( 0,0,0,0 );
 my @line_parts;
+
+shift(@lines) while ( ! $lines[0] );	# remove empty at beginning
+pop(@lines) while ( ! $lines[-1] );	# remove empty at end
+
 foreach my $line (@lines) {
 	if ( $line =~ m/^#/ ) {
 		push @line_parts, [ $line ] unless $opt_svg && $line =~ m/^###+/; # SVG doesn't display 3rd level comments
