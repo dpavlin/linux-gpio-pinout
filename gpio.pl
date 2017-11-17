@@ -82,7 +82,10 @@ die "add pin definition for # $model" unless $pins;
 warn "# pins ",dump($pins);
 
 my $serial_tty;
-foreach ( glob $opt_read . '/sys//devices/platform/soc*/*.serial/tty/tty*' ) {
+foreach (
+	glob($opt_read . '/sys/devices/platform/soc*/*.serial/tty/tty*'),	# 4.x
+	glob(            '/sys/devices/soc.*/*.uart/tty/tty*')			# 3.10
+) {
 	my @v = split(/\//, $_);
 	$serial_tty->{ $v[-3] } = $v[-1];
 }
@@ -91,35 +94,51 @@ warn "# serial_tty = ",dump($serial_tty);
 
 my $pin_function;
 my $device;
+my $pin;
+my $function;
 
-open(my $fh, '<', $opt_read . '/sys/kernel/debug/pinctrl/pinctrl-handles');
+open(my $fh, '<', $opt_read . '/sys/kernel/debug/pinctrl/pinctrl-maps');
 while(<$fh>) {
 	chomp;
-	if ( m/device: (\S+)/ ) {
+	if ( m/^device (\S+)/ ) {
 		$device = $1;
 		if ( my $replace = $serial_tty->{$device} ) {
 			$device = $replace; # replace serial hex with kernel name
 		} else {
 			$device =~ s/^[0-9a-f]*\.//; # remove hex address
 		}
-	} elsif ( m/group: (\w+\d+)\s.+function: (\S+)/ ) {
-		my ($pin, $function) = ($1,$2);
-		$pin_function->{$pin} = "$device $function";
+	} elsif ( m/^group (\w+\d+)/ ) {
+		$pin = $1;
 
-		if ( $pins->{$pin} ) {
-			foreach my $line ( @{$pins->{$pin}} ) {
-				my $t = $lines[$line];
-				if ( $opt_svg ) {
-					$t =~ s/$pin/[$device $function]/;
-				} else {
-					$t =~ s/$pin/$pin [$device $function]/ || warn "can't find $pin in [$t]";
+	} elsif ( m/^function (\S+)/ ) {
+		$function = $1;
+	} elsif ( m/^$/ ) {
+		if ( $device && $pin && $function ) {
+			push @{ $pin_function->{$pin} }, "$device $function";
+
+			if ( $pins->{$pin} ) {
+				foreach my $line ( @{$pins->{$pin}} ) {
+					my $t = $lines[$line];
+					if ( $opt_svg ) {
+						$t =~ s/$pin/[$device $function]/;
+					} else {
+						$t =~ s/$pin/$pin [$device $function]/ || warn "can't find $pin in [$t]";
+					}
+					$lines[$line] = $t;
+					warn "# $line: $lines[$line]\n";
 				}
-				$lines[$line] = $t;
-				warn "# $line: $lines[$line]\n";
+			} else {
+				warn "IGNORED: pin $pin function $function\n";
 			}
+
 		} else {
-			warn "IGNORED: pin $pin function $function\n";
+			warn "missing one of ",dump( $device, $pin, $function );
 		}
+
+		$device = undef;
+		$pin = undef;
+		$function = undef;
+
 	}
 }
 
@@ -136,7 +155,8 @@ foreach my $line (@lines) {
 		push @line_parts, [ $line ] unless $opt_svg && $line =~ m/^###+/; # SVG doesn't display 3rd level comments
 		next;
 	}
-	$line =~ s/(\[(?:uart|serial|tty\w+))([^\t]*\]\s[^\t]*(rx|tx)d?)/$1 $3$2/gi;
+	$line =~ s/\[(\w+)\s+(\w+)\] \[\1\s+(\w+)\]/[$1 $2 $3]/g; # compress kernel annotation with same prefix
+	$line =~ s/(\[(?:uart\d*|serial|tty\w+))([^\t]*\]\s[^\t]*(rx|tx)d?)/$1 $3$2/gi;
 	$line =~ s/(\[i2c)([^\t]*\]\s[^\t]*(scl?k?|sda))/$1 $3$2/gi;
 	$line =~ s/(\[spi)([^\t]*\]\s[^\t]*(miso|mosi|s?clk|c[se]\d*))/$1 $3$2/gi;
 	$line =~ s/\s*\([^\)]+\)//g if ! $opt_alt;
@@ -144,6 +164,8 @@ foreach my $line (@lines) {
 	# shorten duplicate kernel device/function
 	$line =~ s/\[serial (\w+) (uart\d+)\]/[$2 $1]/g;
 	$line =~ s/\[(\w+) (\w+) \1(\d+)\]/[$1$3 $2]/g;
+
+	$line =~ s/\[(\w+)\s+([^\]]+)\s+\1\]/[$1 $2]/g;	# duplicate
 
 	my @v = split(/\s*\t+\s*/,$line,4);
 	@v = ( $v[2], $v[3], $v[0], $v[1] ) if $opt_horizontal && $v[2];
