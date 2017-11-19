@@ -50,6 +50,7 @@ my $model = slurp('/proc/device-tree/model');
 $model =~ s/\x00$//; # strip kernel NULL
 warn "# model [$model]";
 
+OPEN_PINS_AGAIN:
 open(DATA, '<', $opt_pins) if $opt_pins;
 
 my @lines;
@@ -74,6 +75,15 @@ while(<DATA>) {
 	} else {
 		warn "IGNORE: [$_]\n";
 	}
+}
+
+if ( ! $opt_pins && ! $pins ) {
+	my $glob = $model;
+	my $glob =~ s/^(\w+).*$/$1/;
+	my @pins = glob "pins/${glob}*";
+	warn "# possible pins: ",dump( \@pins );
+	$opt_pins = $pins[0];
+	goto OPEN_PINS_AGAIN;
 }
 
 die "add pin definition for # $model" unless $pins;
