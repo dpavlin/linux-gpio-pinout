@@ -67,7 +67,7 @@ while(<DATA>) {
 			$include = 0;
 		}
 	} elsif ( $include || $opt_pins ) {
-		push @{ $pins->{$1} }, $line_i while ( m/\t(\w+\d+)/g );
+		push @{ $pins->{$1} }, $line_i while ( m/\t\s*(\w+\d+)/g );
 
 		push @lines, $_;
 
@@ -121,7 +121,7 @@ sub annotate_pin {
 			warn "# $line: $lines[$line]\n";
 		}
 	} else {
-		warn "IGNORED: pin $pin function $function\n";
+		warn "IGNORED: pin $pin function $note\n";
 	}
 }
 
@@ -163,8 +163,11 @@ while(<$pio>) {
 	chomp;
 	s/[<>]+/ /g;
 	my @p = split(/\s+/,$_);
+	warn "# pio ",dump(\@p);
 	# annotate input 0 and output 1 pins
-	annotate_pin $p[0], ( $p[1] ? 'O' : 'I' ) . ':' . $p[4] if $p[1] == 0 || $p[1] == 1;
+#	annotate_pin $p[0], ( $p[1] ? 'O' : 'I' ) . ':' . $p[4] if $p[1] == 0 || $p[1] == 1;
+	my $pin = shift @p;
+	annotate_pin $pin, join(' ',@p);
 }
 close($pio);
 
