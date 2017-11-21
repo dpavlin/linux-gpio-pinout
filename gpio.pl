@@ -107,6 +107,24 @@ my $device;
 my $pin;
 my $function;
 
+sub annotate_pin {
+	my ($pin, $note) = @_;
+	if ( $pins->{$pin} ) {
+		foreach my $line ( @{$pins->{$pin}} ) {
+			my $t = $lines[$line];
+			if ( $opt_svg ) {
+				$t =~ s/$pin/$note/;
+			} else {
+				$t =~ s/$pin/$pin $note/ || warn "can't find $pin in [$t]";
+			}
+			$lines[$line] = $t;
+			warn "# $line: $lines[$line]\n";
+		}
+	} else {
+		warn "IGNORED: pin $pin function $function\n";
+	}
+}
+
 open(my $fh, '<', $opt_read . '/sys/kernel/debug/pinctrl/pinctrl-maps');
 while(<$fh>) {
 	chomp;
@@ -126,21 +144,7 @@ while(<$fh>) {
 		if ( $device && $pin && $function ) {
 			push @{ $pin_function->{$pin} }, "$device $function";
 
-			if ( $pins->{$pin} ) {
-				foreach my $line ( @{$pins->{$pin}} ) {
-					my $t = $lines[$line];
-					if ( $opt_svg ) {
-						$t =~ s/$pin/[$device $function]/;
-					} else {
-						$t =~ s/$pin/$pin [$device $function]/ || warn "can't find $pin in [$t]";
-					}
-					$lines[$line] = $t;
-					warn "# $line: $lines[$line]\n";
-				}
-			} else {
-				warn "IGNORED: pin $pin function $function\n";
-			}
-
+			annotate_pin $pin, "[$device $function]";
 		} else {
 			warn "missing one of ",dump( $device, $pin, $function );
 		}
@@ -153,6 +157,16 @@ while(<$fh>) {
 }
 
 warn "# pin_function = ",dump($pin_function);
+
+open(my $pio, '-|', 'sunxi-pio -m print');
+while(<$pio>) {
+	chomp;
+	s/[<>]+/ /g;
+	my @p = split(/\s+/,$_);
+	# annotate input 0 and output 1 pins
+	annotate_pin $p[0], ( $p[1] ? 'O' : 'I' ) . ':' . $p[4] if $p[1] == 0 || $p[1] == 1;
+}
+close($pio);
 
 my @max_len = ( 0,0,0,0 );
 my @line_parts;
