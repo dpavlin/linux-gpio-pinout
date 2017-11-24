@@ -167,7 +167,7 @@ while(<$pio>) {
 	# annotate input 0 and output 1 pins
 #	annotate_pin $p[0], ( $p[1] ? 'O' : 'I' ) . ':' . $p[4] if $p[1] == 0 || $p[1] == 1;
 	my $pin = shift @p;
-	annotate_pin $pin, join(' ',@p);
+	annotate_pin $pin, join(' ',@p) if ! $opt_svg;
 }
 close($pio);
 
@@ -373,8 +373,37 @@ sub line {
 
 my $last_cut_mark = 0;
 
+sub connector {
+	my ( $from, $to ) = @_;
+	warn "# connector $from - $to ",dump( $line_parts[$from], $line_parts[$to] );
+	if ( $opt_vertical ) {
+		foreach my $i ( 0 .. int(($to-$from)/2) ) {
+			my $t = $line_parts[$from + $i];
+			        $line_parts[$from + $i] = $line_parts[$to - $i];
+			                                  $line_parts[$to - $i] = $t;
+		}
+	}
+}
+
+my $from;
+my $to;
 foreach my $i ( 0 .. $#line_parts ) {
-	$i = $#line_parts - $i if $opt_vertical;
+	next if $line_parts[$i]->[0] =~ m/^###/;
+	if (exists $line_parts[$i]->[1]) {
+		if (! $from) {
+			$from = $i;
+		} else {
+			$to = $i;
+		}
+	} elsif ($from && $to) {
+		connector $from => $to;
+		$from = $to = undef;
+	}
+}
+connector $from => $to if $from && $to;
+
+foreach my $i ( 0 .. $#line_parts ) {
+#	$i = $#line_parts - $i if $opt_vertical;
 	my $line = $line_parts[$i];
 
 	if ( $opt_svg ) {
