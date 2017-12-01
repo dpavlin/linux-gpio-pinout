@@ -79,7 +79,7 @@ while(<DATA>) {
 
 if ( ! $opt_pins && ! $pins ) {
 	my $glob = $model;
-	my $glob =~ s/^(\w+).*$/$1/;
+	$glob =~ s/^(\w+).*$/$1/;
 	my @pins = glob "pins/${glob}*";
 	warn "# possible pins: ",dump( \@pins );
 	$opt_pins = $pins[0];
@@ -158,6 +158,9 @@ while(<$fh>) {
 
 warn "# pin_function = ",dump($pin_function);
 
+my $have_sunxi_pio = `which sunxi-pio`;
+if ( $have_sunxi_pio ) {
+
 open(my $pio, '-|', 'sunxi-pio -m print');
 while(<$pio>) {
 	chomp;
@@ -170,6 +173,8 @@ while(<$pio>) {
 	annotate_pin $pin, join(' ',@p) if ! $opt_svg;
 }
 close($pio);
+
+} # have_sunxi_pio
 
 my @max_len = ( 0,0,0,0 );
 my @line_parts;
