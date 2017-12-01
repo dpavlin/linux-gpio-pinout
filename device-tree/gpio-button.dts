@@ -1,0 +1,48 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "allwinner,sun4i-a10", "allwinner,sun7i-a20", "allwinner,sun50i-a64", "allwinner,sun50i-h5";
+
+	/*
+	 * This fragment is needed only for the internal pull-up activation,
+	 * external pull-up resistor is highly recommended if using long wires
+	 */
+	fragment@0 {
+		target = <&pio>;
+		__overlay__ {
+			gpio_button_0: gpio_button_0 {
+				pins = "PH3", "PH5";
+				function = "gpio_in";
+				bias-pull-up;
+			};
+		};
+	};
+
+	fragment@1 {
+		target-path = "/";
+		__overlay__ {
+			gpio-keys-user {
+				/*
+				 * Use "gpio-keys" for EINT capable pins, "gpio-keys-polled" for other pins
+				 * add "poll-interval" property if using "gpio-keys-polled"
+				 */
+				compatible = "gpio-keys";
+				pinctrl-names = "default";
+				pinctrl-0 = <&gpio_button_0>;
+
+				up {
+					label = "button-up";
+					linux,code = <103>; /* KEY_UP, see include/uapi/linux/input-event-codes.h */
+					gpios = <&pio 7 3 1>; /* PH3 GPIO_ACTIVE_LOW */
+				};
+
+				down {
+					label = "button-down";
+					linux,code = <108>; /* KEY_DOWN, see include/uapi/linux/input-event-codes.h */
+					gpios = <&pio 7 5 1>; /* PH5 GPIO_ACTIVE_LOW */
+				};
+			};
+		};
+	};
+};

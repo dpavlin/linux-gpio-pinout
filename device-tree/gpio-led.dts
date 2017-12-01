@@ -1,0 +1,33 @@
+/*
+ * add few leds
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "allwinner,sun4i-a10", "allwinner,sun7i-a20", "allwinner,sun50i-a64", "allwinner,sun50i-h5";
+
+	/* Documentation/devicetree/bindings/leds/leds-gpio.txt */
+	fragment@0 {
+		target-path = "/";
+
+		__overlay__ {
+			user-leds {
+				compatible = "gpio-leds";
+
+				leds@0 {
+					label = "gpio:red-top";
+					gpios = <&pio 8 20 0>; /* PI20 GPIO_ACTIVE_HIGH */
+					linux,default-trigger = "mmc0";
+				};
+
+				leds@1 {
+					label = "gpio:green-bottom";
+					gpios = <&pio 8 21 0>; /* PI21 GPIO_ACTIVE_HIGH */
+					linux,default-trigger = "cpu";
+				};
+			};
+		};
+	};
+};
