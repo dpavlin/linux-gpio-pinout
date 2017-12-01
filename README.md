@@ -12,3 +12,8 @@ on your board to make wiring easier.
 
 For device tree information, best source right now is this presentation:
 https://elinux.org/images/d/dc/Elce_2017_dt_bof.pdf
+
+
+device-tree/ directory contains examples
+
+i2c-usersapce/ contains random i2c userspace device drivers
