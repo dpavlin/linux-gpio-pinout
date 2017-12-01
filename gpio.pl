@@ -79,7 +79,7 @@ while(<DATA>) {
 
 if ( ! $opt_pins && ! $pins ) {
 	my $glob = $model;
-	my $glob =~ s/^(\w+).*$/$1/;
+	$glob =~ s/^(\w+).*$/$1/;
 	my @pins = glob "pins/${glob}*";
 	warn "# possible pins: ",dump( \@pins );
 	$opt_pins = $pins[0];
