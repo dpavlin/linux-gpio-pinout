@@ -13,7 +13,7 @@
 		target = <&pio>;
 		__overlay__ {
 			gpio_button_0: gpio_button_0 {
-				pins = "PG9","PG10","PG11";
+				pins = "PG3","PG1","PG5";
 				function = "gpio_in";
 				bias-pull-up;
 			};
@@ -41,19 +41,19 @@
 				up {
 					label = "button-up";
 					linux,code = <103>; /* KEY_UP, see include/uapi/linux/input-event-codes.h */
-					gpios = <&pio 6 9 1>; /* PG9 GPIO_ACTIVE_LOW */
+					gpios = <&pio 6 3 1>; /* PG3 GPIO_ACTIVE_LOW */
 				};
 
 				down {
 					label = "button-down";
 					linux,code = <108>; /* KEY_DOWN, see include/uapi/linux/input-event-codes.h */
-					gpios = <&pio 6 10 1>; /* PG10 GPIO_ACTIVE_LOW */
+					gpios = <&pio 6 1 1>; /* PG1 GPIO_ACTIVE_LOW */
 				};
 
 				enter {
 					label = "button-enter";
 					linux,code = <28>; /* KEY_DOWN, see include/uapi/linux/input-event-codes.h */
-					gpios = <&pio 6 11 1>; /* PG11 GPIO_ACTIVE_LOW */
+					gpios = <&pio 6 5 1>; /* PG5 GPIO_ACTIVE_LOW */
 				};
 			};
 		};
