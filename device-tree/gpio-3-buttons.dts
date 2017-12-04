@@ -38,21 +38,21 @@
 				pinctrl-names = "default";
 				pinctrl-0 = <&gpio_button_0>;
 
-				up {
-					label = "button-up";
-					linux,code = <103>; /* KEY_UP, see include/uapi/linux/input-event-codes.h */
+				email {
+					label = "E-mail";
+					linux,code = <215>; /* KEY_EMAIL, see include/uapi/linux/input-event-codes.h */
 					gpios = <&pio 6 3 1>; /* PG3 GPIO_ACTIVE_LOW */
 				};
 
-				down {
-					label = "button-down";
-					linux,code = <108>; /* KEY_DOWN, see include/uapi/linux/input-event-codes.h */
+				connect {
+					label = "Connect";
+					linux,code = <218>; /* KEY_CONNECT, see include/uapi/linux/input-event-codes.h */
 					gpios = <&pio 6 1 1>; /* PG1 GPIO_ACTIVE_LOW */
 				};
 
-				enter {
-					label = "button-enter";
-					linux,code = <28>; /* KEY_DOWN, see include/uapi/linux/input-event-codes.h */
+				print {
+					label = "Print";
+					linux,code = <210>; /* KEY_PRINT, see include/uapi/linux/input-event-codes.h */
 					gpios = <&pio 6 5 1>; /* PG5 GPIO_ACTIVE_LOW */
 				};
 			};
