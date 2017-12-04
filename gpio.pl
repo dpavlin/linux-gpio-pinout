@@ -17,6 +17,7 @@ my $opt_lines = 0;
 my $opt_read = '';
 my $opt_pins = '';
 my $opt_color = 0;
+my $opt_pinmux = 0;
 GetOptions(
 	'svg!' => \$opt_svg,
 	'alt!' => \$opt_alt,
@@ -30,6 +31,7 @@ GetOptions(
 	'read=s' => \$opt_read,
 	'pins=s' => \$opt_pins,
 	'color' => \$opt_color,
+	'pinmux' => \$opt_pinmux,
 );
 
 # svg font hints
@@ -175,6 +177,36 @@ while(<$pio>) {
 close($pio);
 
 } # have_sunxi_pio
+
+
+my $pinmux;
+my $pinmux_path = (glob("/sys/kernel/debug/pinctrl/*/pinmux-functions"))[0];
+if ( $opt_pinmux && -e $pinmux_path ) {
+	open(my $mux, '<', $pinmux_path);
+	while(<$mux>) {
+		chomp;
+		if ( m/function: (\w+), groups = \[ (.*) \]/ ) {
+			my ( $func, $pins ) = ( $1, $2 );
+			foreach ( split(/\s+/,$pins) ) {
+				push @{ $pinmux->{$_} }, $func;
+			}
+		} else {
+			warn "IGNORED [$pinmux_path] [$_]\n";
+		}
+	}
+
+	foreach my $pin ( keys %$pinmux ) {
+		if ( exists $pins->{$pin} ) {
+			annotate_pin $pin, '{' . join(' ', @{$pinmux->{$pin}}) . '}';
+		} else {
+			warn "IGNORED mux on $pin\n";
+		}
+	}
+
+	warn "# pinmux = ",dump( $pinmux );
+}
+
+
 
 my @max_len = ( 0,0,0,0 );
 my @line_parts;
