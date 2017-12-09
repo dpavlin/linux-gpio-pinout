@@ -1,0 +1,69 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "allwinner,sun4i-a10", "allwinner,sun7i-a20", "allwinner,sun50i-a64", "allwinner,sun50i-h5";
+
+	/*
+	 * This fragment is needed only for the internal pull-up activation,
+	 * external pull-up resistor is highly recommended if using long wires
+	 *
+	 * if you connect vcc to keyboard board, remote this fragment!
+	 */
+
+	fragment@0 {
+		target = <&pio>;
+		__overlay__ {
+			gpio_button_0: gpio_button_0 {
+				pins = "PE11","PE10","PE9", "PE8";
+				function = "gpio_in";
+				bias-pull-up;
+			};
+		};
+	};
+
+	fragment@1 {
+		target-path = "/";
+		__overlay__ {
+			EPSON-B184 {
+				/*
+				 * Use "gpio-keys" for EINT capable pins, "gpio-keys-polled" for other pins
+				 * add "poll-interval" property if using "gpio-keys-polled"
+				 */
+/*
+				compatible = "gpio-keys";
+*/
+				compatible = "gpio-keys-polled";
+				poll-interval = <100>;
+				autorepeat;
+
+				pinctrl-names = "default";
+				pinctrl-0 = <&gpio_button_0>;
+
+				kp_1 {
+					label = "Keypad 1";
+					linux,code = <79>; /* KEY_KP1, see include/uapi/linux/input-event-codes.h */
+					gpios = <&pio 4 11 1>; /* PE11 GPIO_ACTIVE_LOW */
+				};
+
+				kp_2 {
+					label = "Keypad 2";
+					linux,code = <80>; /* KEY_KP2, see include/uapi/linux/input-event-codes.h */
+					gpios = <&pio 4 10 1>; /* PE10 GPIO_ACTIVE_LOW */
+				};
+
+				kp_3 {
+					label = "Keypad 3";
+					linux,code = <81>; /* KEY_KP3, see include/uapi/linux/input-event-codes.h */
+					gpios = <&pio 4 9 1>; /* PE9 GPIO_ACTIVE_LOW */
+				};
+
+				kp_4 {
+					label = "Keypad 4";
+					linux,code = <82>; /* KEY_KP4, see include/uapi/linux/input-event-codes.h */
+					gpios = <&pio 4 8 1>; /* PE8 GPIO_ACTIVE_LOW */
+				};
+			};
+		};
+	};
+};
