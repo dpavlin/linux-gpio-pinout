@@ -17,7 +17,7 @@
 			gpio_button_0: gpio_button_0 {
 				pins = "PE11","PE10","PE9", "PE8";
 				function = "gpio_in";
-				bias-pull-up;
+				/* bias-pull-down; */
 			};
 		};
 	};
@@ -43,25 +43,25 @@
 				kp_1 {
 					label = "Keypad 1";
 					linux,code = <79>; /* KEY_KP1, see include/uapi/linux/input-event-codes.h */
-					gpios = <&pio 4 11 1>; /* PE11 GPIO_ACTIVE_LOW */
+					gpios = <&pio 4 11 0>; /* PE11 GPIO_ACTIVE_HIGH */
 				};
 
 				kp_2 {
 					label = "Keypad 2";
 					linux,code = <80>; /* KEY_KP2, see include/uapi/linux/input-event-codes.h */
-					gpios = <&pio 4 10 1>; /* PE10 GPIO_ACTIVE_LOW */
+					gpios = <&pio 4 10 0>; /* PE10 GPIO_ACTIVE_HIGH */
 				};
 
 				kp_3 {
 					label = "Keypad 3";
 					linux,code = <81>; /* KEY_KP3, see include/uapi/linux/input-event-codes.h */
-					gpios = <&pio 4 9 1>; /* PE9 GPIO_ACTIVE_LOW */
+					gpios = <&pio 4 9 0>; /* PE9 GPIO_ACTIVE_HIGH */
 				};
 
-				kp_4 {
-					label = "Keypad 4";
-					linux,code = <82>; /* KEY_KP4, see include/uapi/linux/input-event-codes.h */
-					gpios = <&pio 4 8 1>; /* PE8 GPIO_ACTIVE_LOW */
+				kp_0 {
+					label = "Keypad 0";
+					linux,code = <82>; /* KEY_KP0, see include/uapi/linux/input-event-codes.h */
+					gpios = <&pio 4 8 0>; /* PE8 GPIO_ACTIVE_HIGH */
 				};
 			};
 		};
