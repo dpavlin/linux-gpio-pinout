@@ -16,4 +16,13 @@ https://elinux.org/images/d/dc/Elce_2017_dt_bof.pdf
 
 device-tree/ directory contains examples
 
+to use device trees, do something like:
+
+	vi device-tree/gpio-leds.dts
+	armbian-add-overlay device-tree/gpio-led.dts
+	dmesg -w &
+	./overlay-load.sh /boot/overlay-user/gpio-led.dtbo
+
+
+
 i2c-usersapce/ contains random i2c userspace device drivers
