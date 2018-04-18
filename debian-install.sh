@@ -1,3 +1,4 @@
 #!/bin/sh -xe
 
 sudo apt-get install libdata-dump-perl
+apt-cache search --names-only sunxi-tools | cut -d' ' -f1 | xargs -i sudo apt-get install {}
