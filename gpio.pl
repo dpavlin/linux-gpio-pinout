@@ -181,10 +181,13 @@ while(<$gpio_fh>) {
 		my @l = split(/\s*[\(\|\)]\s*/, $_);
 		warn "XXX ", dump( \@l );
 		if ( $l[0] =~ m/gpio-(\d+)/ ) {
-			my $pin = $linux_gpio_name->{$1} || die "can't find $1 in ",dump( $linux_gpio_name );
-			$gpio_debug->{ $pin } = $l[2];
-			$l[3] =~ s/\s\s+/ /g;
-			annotate_pin $pin, qq{"$l[2]" $l[3]};
+			if ( my $pin = $linux_gpio_name->{$1} ) {
+				$gpio_debug->{ $pin } = $l[2];
+				$l[3] =~ s/\s\s+/ /g;
+				annotate_pin $pin, qq{"$l[2]" $l[3]};
+			} else {
+				warn "FIXME can't find $1 in ",dump( $linux_gpio_name );
+			}
 		}
 	}
 
