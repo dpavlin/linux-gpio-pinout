@@ -214,6 +214,21 @@ close($pio);
 
 } # have_sunxi_pio
 
+my $have_raspi_gpio = `which raspi-gpio`;
+if ( $have_raspi_gpio ) {
+
+open(my $pio, '-|', 'raspi-gpio get');
+while(<$pio>) {
+	chomp;
+	if ( m/^GPIO (\d+): (.+)/ ) {
+		my $pin = 'gpio' . $1;
+		annotate_pin $pin, $2 if ! $opt_svg;
+	}
+}
+close($pio);
+
+} # have_raspi_gpio
+
 
 my $pinmux;
 my $pinmux_path = (glob("/sys/kernel/debug/pinctrl/*/pinmux-functions"))[0];
