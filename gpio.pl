@@ -217,12 +217,25 @@ close($pio);
 my $have_raspi_gpio = `which raspi-gpio`;
 if ( $have_raspi_gpio ) {
 
+my @gpio_pins;
+
 open(my $pio, '-|', 'raspi-gpio get');
 while(<$pio>) {
 	chomp;
 	if ( m/^GPIO (\d+): (.+)/ ) {
 		my $pin = 'gpio' . $1;
+		push @gpio_pins, $1;
 		annotate_pin $pin, $2 if ! $opt_svg;
+	}
+}
+close($pio);
+
+open(my $pio, '-|', 'raspi-gpio funcs '.join(',',@gpio_pins));
+while(<$pio>) {
+	chomp;
+	s/,\s/ /g;
+	if (m/^(\d+)\s+(.*)/) {
+		annotate_pin 'gpio'.$1,"($2)" if $opt_alt;
 	}
 }
 close($pio);
