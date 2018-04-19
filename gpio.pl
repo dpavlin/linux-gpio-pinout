@@ -222,7 +222,7 @@ my @gpio_pins;
 open(my $pio, '-|', 'raspi-gpio get');
 while(<$pio>) {
 	chomp;
-	if ( m/^GPIO (\d+): (.+)/ ) {
+	if ( m/^\s*GPIO (\d+): (.+)/ ) {
 		my $pin = 'gpio' . $1;
 		push @gpio_pins, $1;
 		annotate_pin $pin, $2 if ! $opt_svg;
