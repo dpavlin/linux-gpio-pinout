@@ -21,3 +21,9 @@
 37	gpio26 (WPi 25)		38	gpio20  (WPi 28)
 39	0v			40	gpio21  (WPi 29)
 
+# Raspberry Pi Model B Rev 2
+## P5 bottom header
+1	5V0			2	3V3
+3	gpio28			4	gpio29
+5	gpio30			6	gpio31
+7	GND			8	GND
