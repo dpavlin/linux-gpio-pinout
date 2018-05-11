@@ -47,10 +47,19 @@ sub slurp {
 }
 
 my $pins;
+my $include = 0;
 
 my $model = slurp('/proc/device-tree/model');
 $model =~ s/\x00$//; # strip kernel NULL
 warn "# model [$model]";
+if ( $opt_pins ) {
+	$model = $opt_pins;
+	$model =~ s/^.*\///; # strip dir
+	$model =~ s/\..+$//; # strip extension
+	$include = 1;
+	warn "# $opt_pins model [$model] $include";
+}
+warn "# $opt_pins model [$model] $include";
 
 OPEN_PINS_AGAIN:
 open(DATA, '<', $opt_pins) if $opt_pins;
@@ -58,17 +67,16 @@ open(DATA, '<', $opt_pins) if $opt_pins;
 my @lines;
 my $line_i = 0;
 
-my $include = 0;
 while(<DATA>) {
 	chomp;
 	if ( m/^#\s(.+)/ ) {
-		warn "MODEL [$1] == [$model] ?\n";
 		if ( $model =~ m/$1/ ) {
 			$include = 1;
 		} else {
 			$include = 0;
 		}
-	} elsif ( $include || $opt_pins ) {
+		warn "MODEL [$1] == [$model] include: $include\n";
+	} elsif ( $include ) {
 		push @{ $pins->{$1} }, $line_i while ( m/\t\s*(\w+\d+)/g );
 
 		push @lines, $_;
