@@ -232,7 +232,7 @@ open(my $pio, '-|', 'raspi-gpio get');
 while(<$pio>) {
 	chomp;
 	if ( m/^\s*GPIO (\d+): (.+)/ ) {
-		my $pin = 'gpio' . $1;
+		my $pin = 'gpio' . $1 * 1; # we need * 1 to strip leading zero
 		push @gpio_pins, $1;
 		annotate_pin $pin, $2 if ! $opt_svg;
 	}
