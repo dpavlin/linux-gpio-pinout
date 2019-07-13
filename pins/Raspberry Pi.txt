@@ -27,3 +27,16 @@
 3	gpio28			4	gpio29
 5	gpio30			6	gpio31
 7	GND			8	GND
+
+# Raspberry Pi
+## GPIO Extension Board V2.2
+3V3	3.3v		5V	5v
+CE1	gpio7		P0	gpio17
+CE0	gpio8		P1	gpio18
+SCLK	gpio11		P2	gpio27
+MISO	gpio9		P3	gpio22
+MOSI	gpio10		P4	gpio23
+RXD	gpio15		P5	gpio24
+TXD	gpio14		P6	gpio25
+SCL	gpio3		P7	gpio4
+SDA	gpio2		GND
