@@ -51,6 +51,7 @@ my $include = 0;
 
 my $model = slurp('/proc/device-tree/model');
 $model =~ s/\x00$//; # strip kernel NULL
+$model =~ s/\W+$//; # remote + from Pine64+
 warn "# model [$model]";
 if ( $opt_pins ) {
 	$model = $opt_pins;
