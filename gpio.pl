@@ -212,8 +212,11 @@ if ( $have_sunxi_pio ) {
 open(my $pio, '-|', 'sunxi-pio -m print');
 while(<$pio>) {
 	chomp;
-	s/[<>]+/ /g;
-	my @p = split(/\s+/,$_);
+	my $p = $_;
+	# following line doesn't work in perl v5.28.1
+	# $p =~ s/[<>]+/ /g;
+	$p =~ s/[<>]/ /g;
+	my @p = split(/\s+/,$p);
 	warn "# pio ",dump(\@p);
 	# annotate input 0 and output 1 pins
 #	annotate_pin $p[0], ( $p[1] ? 'O' : 'I' ) . ':' . $p[4] if $p[1] == 0 || $p[1] == 1;
