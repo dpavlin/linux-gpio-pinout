@@ -49,5 +49,10 @@ which in turn needs bison and flex to compile:
 type make to compile it and create symlink to it:
 
 dpavlin@cubieboard2:~/linux-gpio-pinout/dtc$ sudo ln -sfv `pwd`/dtc /lib/modules/$(uname -r)/build/scripts/dtc/dtc
-‘/lib/modules/4.17.14-sunxi/build/scripts/dtc/dtc’ -> ‘/home/dpavlin/linux-gpio-pinout/dtc/dtc’
+
+
+For 64-bit sunxi (like Pine64) sunxi-tools doesn't show all ports (up to PL), so I included script to
+compile it from source with a fix:
+
+dpavlin@pine64:~/linux-gpio-pinout$ ./sunxi-tools-sunxi64-install.sh 
 
