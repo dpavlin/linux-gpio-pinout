@@ -51,6 +51,7 @@ my $include = 0;
 
 my $model = slurp('/proc/device-tree/model');
 $model =~ s/\x00$//; # strip kernel NULL
+$model =~ s/\W+$//; # remote + from Pine64+
 warn "# model [$model]";
 if ( $opt_pins ) {
 	$model = $opt_pins;
@@ -211,8 +212,11 @@ if ( $have_sunxi_pio ) {
 open(my $pio, '-|', 'sunxi-pio -m print');
 while(<$pio>) {
 	chomp;
-	s/[<>]+/ /g;
-	my @p = split(/\s+/,$_);
+	my $p = $_;
+	# following line doesn't work in perl v5.28.1
+	# $p =~ s/[<>]+/ /g;
+	$p =~ s/[<>]/ /g;
+	my @p = split(/\s+/,$p);
 	warn "# pio ",dump(\@p);
 	# annotate input 0 and output 1 pins
 #	annotate_pin $p[0], ( $p[1] ? 'O' : 'I' ) . ':' . $p[4] if $p[1] == 0 || $p[1] == 1;
@@ -232,7 +236,7 @@ open(my $pio, '-|', 'raspi-gpio get');
 while(<$pio>) {
 	chomp;
 	if ( m/^\s*GPIO (\d+): (.+)/ ) {
-		my $pin = 'gpio' . $1;
+		my $pin = 'gpio' . $1 * 1; # we need * 1 to strip leading zero
 		push @gpio_pins, $1;
 		annotate_pin $pin, $2 if ! $opt_svg;
 	}

@@ -1,0 +1,24 @@
+/*
+ * add gpio-ir-tx to enable ir send on sunxi
+ * for RM Mini 3 IR board connected to pins
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "allwinner,sun4i-a10", "allwinner,sun7i-a20", "allwinner,sun50i-a64", "allwinner,sun50i-h5";
+
+	/* Documentation/devicetree/bindings/leds/irled/gpio-ir-tx.txt */
+	fragment@0 {
+		target-path = "/";
+
+		__overlay__ {
+			irled@0 {
+				compatible = "gpio-ir-tx";
+				gpios = <&pio 1 10 0>; /* PB10 GPIO_ACTIVE_HIGH */
+			};
+
+		};
+	};
+};
