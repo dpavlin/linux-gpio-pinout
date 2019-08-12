@@ -500,17 +500,17 @@ my $to;
 foreach my $i ( 0 .. $#line_parts ) {
 	next if $line_parts[$i]->[0] =~ m/^###/;
 	if (exists $line_parts[$i]->[1]) {
-		if (! $from) {
+		if (! defined $from) {
 			$from = $i;
 		} else {
 			$to = $i;
 		}
-	} elsif ($from && $to) {
+	} elsif ( defined $from && defined $to) {
 		connector $from => $to;
 		$from = $to = undef;
 	}
 }
-connector $from => $to if $from && $to;
+connector $from => $to if defined $from && defined $to;
 
 foreach my $i ( 0 .. $#line_parts ) {
 #	$i = $#line_parts - $i if $opt_vertical;
