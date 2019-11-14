@@ -12,7 +12,7 @@
 21	gpio9 (MISO)		22	gpio25  (WPi 6) 
 23	gpio11 (SCLK)		24	gpio8   (CE0)
 25	0v			26	gpio7   (CE1)
-# Raspberry Pi 3 Model B Rev 1.2
+# Raspberry Pi [34] Model B
 27	gpio0 (SDA.0)		28	gpio1   (SCL.0)
 29	gpio5 (WPi 21)		30	0v
 31	gpio6 (WPi 22)		32	gpio12  (WPi 26)
