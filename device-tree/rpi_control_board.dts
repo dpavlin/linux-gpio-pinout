@@ -1,6 +1,10 @@
 /*
  * http://pcb.daince.net/doku.php?id=rpi_control_board_v100
  * http://pcb.daince.net/lib/exe/fetch.php?media=rpi_controlboard_v1_0_0:rpicontrolboard_v100_schematic.pdf
+ 
+Alternative for w1 is to edit /boot/config.txt and enable existing overlay:
+dtoverlay=w1-gpio,gpiopin=22
+
  */
 
 /dts-v1/;
@@ -9,18 +13,13 @@
 / {
 	compatible = "brcm,bcm2835";
 
-	/* Documentation/devicetree/bindings/leds/leds-gpio.txt */
 	fragment@0 {
 		target-path = "/";
 
 		__overlay__ {
 			rpi_control_board {
+				/* Documentation/devicetree/bindings/leds/leds-gpio.txt */
 				compatible = "gpio-leds";
-
-				/*
-					linux,default-trigger = "mmc0";
-					linux,default-trigger = "cpu";
-				*/
 
 				leds@0 {
 					label = "blue";
@@ -40,12 +39,20 @@
 				leds@3 {
 					label = "d1";
 					gpios = <&gpio 21 0>;
+					linux,default-trigger = "mmc0";
 				};
 
 				leds@4 {
 					label = "d2";
 					gpios = <&gpio 20 0>;
+					linux,default-trigger = "cpu";
 				};
+			};
+
+			ds18b20_temp {
+				/* Documentation/devicetree/bindings/w1/w1-gpio.txt */
+				compatible = "w1-gpio";
+				gpios = <&gpio 22 0>;
 			};
 		};
 	};

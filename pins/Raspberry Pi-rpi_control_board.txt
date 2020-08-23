@@ -1,0 +1,24 @@
+# Raspberry Pi
+## Switch input
++3.3V	3V3
+IO1	gpio17
+IO2	gpio18
+IO3	gpio27
+GND	GND
+
+## LED PWM Output
++5V	5V
+IO4	gpio12
+IO5	gpio13
+GND	GND
+
+## RGB led signal
+D2	gpio20
+D1	gpio21
+red	gpio23
+grn	gpio24
+blu	gpio25
+
+## DS18B20 Thermo
+DQ	gpio22
+ 
