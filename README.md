@@ -8,16 +8,22 @@ It needs `root` privileges, and generates wide aligned output, so it's probably 
 
 	sudo ./gpio.pl | less -S
 
-It supports simple one or two row pin headers with 2.54mm pin spacing which are specified in
-simple text form at end of file based on model derived from device tree and description of
-pin layout in [pins](pins/) directory. File names depend on name defined in device tree with
-optional `.txt` exstension.
+Layout of pins is described using files in [pins](pins/) directory. File used is determined on
+runtime device tree name found in `/proc/device-tree/model` with optional `.txt` exstension.
+Filenames can be just beginning of this value to support mutiple models with same file.
 
 Lines starting with `#` are regex to select pinout based on `/proc/device-tree/model` and it will
 not be included in output. Good example is [pins/Raspberry Pi.txt](pins/Raspberry Pi.txt) which
 defines pinouts of all Rasperry Pis without duplication.
 
-Lines with `##` are descriptions or comments which will be included in output.
+Lines with `##` are descriptions or comments (name of header, for example) which will be included
+in output.
+
+One or two row pin headers (separated by tab) are supported, and 2.54mm pin spacing is assumed.
+
+First value (separated by space) is name of pin as shown on board, while second value is `gpio42`
+which specifies kernel GPIO 42 and optional description, usually in round brackets. It can include
+additional spaces, but not tab, since tab specifies second column.
 
 To support breakout boards with different pinouts, you can use `--pins` argument:
 
