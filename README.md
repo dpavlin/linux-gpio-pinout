@@ -9,7 +9,21 @@ It needs `root` privileges, and generates wide aligned output, so it's probably 
 	sudo ./gpio.pl | less -S
 
 It supports simple one or two row pin headers with 2.54mm pin spacing which are specified in
-simple text form at end of file based on model derived from device tree in [pins](pins/) directory.
+simple text form at end of file based on model derived from device tree and description of
+pin layout in [pins](pins/) directory. File names depend on name defined in device tree with
+optional `.txt` exstension.
+
+Lines starting with `#` are regex to select pinout based on `/proc/device-tree/model` and it will
+not be included in output. Good example is [pins/Raspberry Pi.txt](pins/Raspberry Pi.txt) which
+defines pinouts of all Rasperry Pis without duplication.
+
+Lines with `##` are descriptions or comments which will be included in output.
+
+To support breakout boards with different pinouts, you can use `--pins` argument:
+
+	sudo ./gpio.pl --pins pins/Raspberry\ Pi-Extension\ Board.txt
+
+
 
 It will dump a lot of output to `STDERR` which can also be useful for debugging or examining kernel's
 view of your system.
