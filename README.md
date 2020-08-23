@@ -23,10 +23,16 @@ to use device trees, do something like:
 	dmesg -w &
 	./overlay-load.sh /boot/overlay-user/gpio-led.dtbo
 
+If you are not using armbian, you can also specity dts file which
+will compile it for you:
+
+	pi@pihdmi:~/linux-gpio-pinout/device-tree $ sudo ../overlay-load.sh rpi_control_board.dts
+
+
 To load kernel module for i2c sensors without writing device tree
 echo module_name address into i2c bus:
 
-echo lm75 0x49 > /sys/bus/i2c/devices/i2c-1/new_device
+	echo lm75 0x49 > /sys/bus/i2c/devices/i2c-1/new_device
 
 
 
