@@ -1,0 +1,26 @@
+/*
+
+Example for additional w1 bus on different pin, it just needs to have unique name 
+
+On Rasperry Pi, it also needs 4.7k pull up on DQ pin of DS18B20
+
+*/
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target-path = "/";
+
+		__overlay__ {
+			ds18b20_temp@2 {
+				/* Documentation/devicetree/bindings/w1/w1-gpio.txt */
+				compatible = "w1-gpio";
+				gpios = <&gpio 17 0>;
+			};
+		};
+	};
+};
