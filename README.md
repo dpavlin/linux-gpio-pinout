@@ -13,7 +13,7 @@ runtime device tree name found in `/proc/device-tree/model` with optional `.txt`
 Filenames can be just beginning of this value to support mutiple models with same file.
 
 Lines starting with `#` are regex to select pinout based on `/proc/device-tree/model` and it will
-not be included in output. Good example is [pins/Raspberry Pi.txt](pins/Raspberry Pi.txt) which
+not be included in output. Good example is [pins/Raspberry Pi.txt](pins/Raspberry%20Pi.txt) which
 defines pinouts of all Rasperry Pis without duplication.
 
 Lines with `##` are descriptions or comments (name of header, for example) which will be included
