@@ -91,7 +91,8 @@ while(<DATA>) {
 if ( ! $opt_pins && ! $pins ) {
 	my $glob = $model;
 	$glob =~ s/^(\w+).*$/$1/;
-	my @pins = glob "pins/${glob}*";
+	# use shortest pin filename by default (longer are breakouts)
+	my @pins = sort { length $a <=> length $b } glob "pins/${glob}*";
 	die "pins/${glob} NOT FOUND for this board, please create one and contribute" unless @pins;
 	warn "# possible pins: ",dump( \@pins );
 	$opt_pins = $pins[0];
