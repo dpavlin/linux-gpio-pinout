@@ -8,8 +8,8 @@ It needs `root` privileges, and generates wide aligned output, so it's probably 
 
 	sudo ./gpio.pl | less -S
 
-Layout of pins is described using files in [pins](pins/) directory. File used is determined on
-runtime device tree name found in `/proc/device-tree/model` with optional `.txt` exstension.
+Layout of pins is described using files in [pins](pins/) directory. File used is determined on the
+runtime device tree name found in `/proc/device-tree/model` with optional `.txt` extension.
 Filenames can be just beginning of this value to support mutiple models with same file.
 
 Lines starting with `#` are regex to select pinout based on `/proc/device-tree/model` and it will
@@ -19,11 +19,11 @@ defines pinouts of all Rasperry Pis without duplication.
 Lines with `##` are descriptions or comments (name of header, for example) which will be included
 in output.
 
-One or two row pin headers (separated by tab) are supported, and 2.54mm pin spacing is assumed.
+One or two row pin headers (separated by a tab) are supported, and 2.54mm pin spacing is assumed.
 
-First value (separated by space) is name of pin as shown on board, while second value is `gpio42`
-which specifies kernel GPIO 42 and optional description, usually in round brackets. It can include
-additional spaces, but not tab, since tab specifies second column.
+First value (separated by spaces) specifies the name of pin as shown on board, while the second 
+value specifies kernel gpio (eg. `gpio 42`) and an optional description, usually in round brackets. 
+It can include additional spaces, but not tabs, since a tab specifies second column.
 
 `--pinmux` flag will include kernel's view of available pin muxing confiration
 in curly braces `{}`. This is useful to find pins which are interrupt capable.
@@ -40,8 +40,8 @@ To support breakout boards with different pinouts, you can use `--pins` argument
 It will dump a lot of output to `STDERR` which can also be useful for debugging or examining kernel's
 view of your system.
 
-`gpio.pl` tool also creates SVG pinouts which you can print out with correct 2.54mm spacing and put
-on your board to make wiring easier if you invoke it with `--svg` argument:
+`gpio.pl` tool will also create SVG pinouts if you invoke it with `--svg` argumet. Output will have 
+correct 2.54mm spacing so you can put it on your board to make wiring it up easier:
 
 	sudo ./gpio.pl --svg pins/Raspberry\ Pi.txt > /tmp/rpi.svg
 
@@ -69,7 +69,7 @@ will compile it for you:
 ## i2c
 
 To load kernel module for i2c sensors without writing device tree
-echo module_name address into i2c bus:
+`echo module_name address` into i2c bus:
 
 	echo lm75 0x49 > /sys/bus/i2c/devices/i2c-1/new_device
 
