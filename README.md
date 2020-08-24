@@ -25,6 +25,12 @@ First value (separated by space) is name of pin as shown on board, while second 
 which specifies kernel GPIO 42 and optional description, usually in round brackets. It can include
 additional spaces, but not tab, since tab specifies second column.
 
+`--pinmux` flag will include kernel's view of available pin muxing confiration
+in curly braces `{}`. This is useful to find pins which are interrupt capable.
+
+`--alt` flag will use round braces `()` data from pins file and `raspi-gpio funcs` to produce
+readable possible pin configurations.
+
 To support breakout boards with different pinouts, you can use `--pins` argument:
 
 	sudo ./gpio.pl --pins pins/Raspberry\ Pi-Extension\ Board.txt
