@@ -1,0 +1,66 @@
+/*
+	https://wiki.seeedstudio.com/Grove-IMU_10DOF/
+
+	on raspberry pi you need to enable i2c in /boot/config.txt using
+	dtparam=i2c_arm=on
+
+	and connect interrput pin to gpio4, so pinout is:
+	pin	gpio	function
+	1		3V3
+	3	gpio2	SDA
+	5	gpio3	SCL
+	7	gpio4	INT (mpu9250)
+	9		GND
+	
+*/
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2708";
+
+	fragment@0 {
+		target = <&i2c1>;
+		__overlay__ {
+			#address-cells = <1>;
+                    	#size-cells = <0>;
+
+			mpu9250: mpu9250@68 {
+				compatible = "invensense,mpu9250";
+				reg = <0x68>;
+				interrupt-parent = <&gpio>;
+				interrupts = <4 1>; /* gpio4, 4 dt-bindings/interrupt-controller/irq.h IRQ_TYPE_LEVEL_HIGH */
+				mount-matrix = "1",  /* x0 */
+                            	"0",  /* y0 */
+                            	"0",  /* z0 */
+                            	"0",  /* x1 */
+                            	"1",  /* y1 */
+                            	"0",  /* z1 */
+                            	"0",  /* x2 */
+                            	"0",  /* y2 */
+                            	"1";  /* z2 */
+
+				i2c-gate {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					ax8975@c {
+						compatible = "ak,ak8975";
+						reg = <0x0c>;
+					};
+				};
+			};
+
+			bmp180@77 {
+				compatible = "bosch,bmp180";
+				reg = <0x77>;
+			};
+
+		};
+	};
+
+	__overrides__ {
+		interrupt = <&mpu9250>,"interrupts:0";
+	};
+
+};
