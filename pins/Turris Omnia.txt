@@ -1,0 +1,13 @@
+# Turris Omnia
+
+## CN12				CN11
+10	mpp56			10	GND
+9	mpp51			9	3.3V
+8	mpp47			8	i2c6.scl
+7	mpp44			7	i2c6.sda
+6	mpp42			6	mpp19 uart1.txd
+5	mpp36			5	mpp20 uart1.rxd
+4	mpp35			4	mpp24 spi0.miso
+3	mpp34			3	mpp22 spi0.mosi
+2	mpp33			2	mpp25 spi0.sck
+1	mpp18			1	mpp26 spi0.nss1
