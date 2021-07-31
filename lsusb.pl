@@ -5,7 +5,7 @@ use autodie;
 
 use Data::Dump qw(dump);
 
-my $opt_verbose = $ENV{V} || 0;
+my $opt_verbose = $ENV{V} || 1;
 $opt_verbose = 1 if @ARGV;
 
 my $device; # id
@@ -47,48 +47,82 @@ while(<$lsusb>) {
 	chomp;
 	#warn "# $_\n";
 
-	my $tty = "\t";
+	my $tty;
 
-	if ( m/(\s+)\Q|__ Port \E(\d+): Dev (\d+), If (\d+)/ ) {
-		my $dev_nr = $2 * 1;
-		my $if = $4;
-		my $level = length($1) / 4;
-		#$path = substr($path,0,$level * 2) . '.' . $2 . ':' . $if;
-		$path = substr($path,0,$level * 2) . '.' . $2;
-		#warn "### level=$level port=$2 path $path | $_\n";
-		if ( exists $usb_path_tty->{ substr($path,3) } ) {
-			$tty = " /dev/" . $usb_path_tty->{ substr($path,3) } . "\t";
-		}
-		#print "$path:$if";
-	}
-
-	if ( m/Dev (\d+),/ && exists $device->{ $1 * 1 } ) {
-		my $dev_nr = $1 * 1;
-		my $name = $device->{ $dev_nr };
-		my $line = $_;
-		$line =~ s/, Class=/$tty $name\tClass=/ || die "can't find $dev_nr in $_";
-
-		if ( $opt_verbose > 0 ) {
-
-			my $vendor_product = $name;
-			$vendor_product =~ s/\s.+$//;
-			my @more;
-			open(my $lsusb_v, '-|', "sudo lsusb -v -d $vendor_product");
-			while(<$lsusb_v>) {
-				warn "## $_\n";
-				if ( m/^\s+(iManufacturer|iProduct|iSerial)\s+\S+\s+(.+)/ ) {
-					push @more, $2;
-				}
-			}
-			close($lsusb_v);
-			$line .= "\t" . join("\t", @more) if @more;
-
-		}
-
-		print "$line\n";
-		#print "$_\t\t",$device->{ $1 * 1 },"\n";
+	my @more;
+	my $level = 0; # 0=bus
+	my $bus;
+	my $port;
+	my $dev;
+	my $if;
+	if ( m/Bus (\d+)\.Port (\d+): Dev (\d+), (.+)/ ) {
+		$bus  = $1;
+		$port = $2;
+		$dev  = $3;
+		@more = split(/,\s+/, $4);
+	} elsif ( m/(\s+).*Port (\d+): Dev (\d+), If (\d+), (.+)/ ) {
+		$level = length($1) / 4;
+		$port = $2;
+		$dev = $3 * 1;
+		$if = $4;
+		@more = split(/,\s+/, $5);
 	} else {
-		print "# $_\n";
+		print "# SKIP: $_\n";
+		next;
 	}
+
+	my $speed = pop @more;
+
+	$bus = $1 if m/Bus (\d+)/;
+
+	$path = substr($path,0,$level * 2) . '.' . $port;
+
+	#warn "### level=$level port=$2 path $path | $_\n";
+	if ( length($path) > 3 && exists $usb_path_tty->{ substr($path,3) } ) {
+		$tty = "/dev/" . $usb_path_tty->{ substr($path,3) };
+	}
+
+
+	if ( $opt_verbose > 0 ) {
+
+		open(my $lsusb_v, '-|', "sudo lsusb -v -s $dev 2>/dev/null");
+		while(<$lsusb_v>) {
+			#warn "## $_\n";
+			if ( m/^\s+(iManufacturer|iProduct|iSerial)\s+\S+\s+(.+)/ ) {
+				push @more, "$1=$2";
+			}
+		}
+		close($lsusb_v);
+
+	}
+
+	my $o;
+
+	if ( $bus ) {
+		$o = sprintf "Bus %02d Port %d, Dev %d",
+			$bus, $port, $dev,
+		;
+	} else {
+		$o = sprintf "%sPort %d, Dev %d, If %d",
+			" " x ( $level * 2 ),
+			$port, $dev, $if
+		;
+	};
+
+	print $o;
+	$o = 32 - length($o);
+
+	#print "level=$level";
+	my $name = $device->{ $dev } || die "can't find $dev in ",dump($device);
+	my ($vendor_product, $name_only ) = split(/\s/,$name,2);
+	printf "%${o}s ", $speed;
+	print $vendor_product, " ";
+	print $tty, " " if $tty;
+	print $name_only, " | ";
+	print join(", ", @more);
+
+	#printf "path=%10s", $path;
+
+	print "\n";
 
 }
