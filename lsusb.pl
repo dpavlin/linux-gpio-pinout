@@ -5,6 +5,9 @@ use autodie;
 
 use Data::Dump qw(dump);
 
+my $opt_verbose = $ENV{V} || 0;
+$opt_verbose = 1 if @ARGV;
+
 my $device; # id
 
 open(my $lsusb, '-|', 'lsusb');
@@ -64,6 +67,24 @@ while(<$lsusb>) {
 		my $name = $device->{ $dev_nr };
 		my $line = $_;
 		$line =~ s/, Class=/$tty $name\tClass=/ || die "can't find $dev_nr in $_";
+
+		if ( $opt_verbose > 0 ) {
+
+			my $vendor_product = $name;
+			$vendor_product =~ s/\s.+$//;
+			my @more;
+			open(my $lsusb_v, '-|', "sudo lsusb -v -d $vendor_product");
+			while(<$lsusb_v>) {
+				warn "## $_\n";
+				if ( m/^\s+(iManufacturer|iProduct|iSerial)\s+\S+\s+(.+)/ ) {
+					push @more, $2;
+				}
+			}
+			close($lsusb_v);
+			$line .= "\t" . join("\t", @more) if @more;
+
+		}
+
 		print "$line\n";
 		#print "$_\t\t",$device->{ $1 * 1 },"\n";
 	} else {
