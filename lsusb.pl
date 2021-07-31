@@ -5,7 +5,7 @@ use autodie;
 
 use Data::Dump qw(dump);
 
-my $opt_verbose = $ENV{V} || 1;
+my $opt_verbose = $ENV{V} || 0;
 $opt_verbose = 1 if @ARGV;
 
 my $debug = $ENV{DEBUG} || 0;
