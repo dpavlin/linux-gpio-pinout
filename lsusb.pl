@@ -8,6 +8,8 @@ use Data::Dump qw(dump);
 my $opt_verbose = $ENV{V} || 1;
 $opt_verbose = 1 if @ARGV;
 
+my $debug = $ENV{DEBUG} || 0;
+
 my $device; # id
 
 open(my $lsusb, '-|', 'lsusb');
@@ -22,7 +24,7 @@ while(<$lsusb>) {
 
 }
 
-#warn "## device = ",dump($device);
+warn "## device = ",dump($device) if $debug;
 
 my $usb_path_tty;
 
@@ -31,14 +33,13 @@ foreach my $path ( glob '/dev/serial/by-path/*' ) {
 	$tty =~ s/^[\.\/]*//;
 	#print "# $path -> $tty\n";
 	$path =~ s/^.*-usb-\d+://;
-
-	#$path =~ s/:(\d).+$/:$1/; # keep :interface
-	#$usb_path_tty->{$path} = $tty;
-
-	$path =~ s/:.+$//; # without :interface
+	$path =~ s/:\d+\.(\d).*$/:$1/ || die "can't keep :interface in [$path]";
 	$usb_path_tty->{$path} = $tty;
+
+	#$path =~ s/:.+$//; # without :interface
+	#$usb_path_tty->{$path} = $tty;
 }
-#warn "## usb_path_tty = ",dump($usb_path_tty);
+warn "## usb_path_tty = ",dump($usb_path_tty) if $debug;
 
 my $path = 'XXXXXX';
 
@@ -76,12 +77,20 @@ while(<$lsusb>) {
 	$bus = $1 if m/Bus (\d+)/;
 
 	$path = substr($path,0,$level * 2) . '.' . $port;
+	print "$path" if $debug;
 
 	#warn "### level=$level port=$2 path $path | $_\n";
 	if ( length($path) > 3 && exists $usb_path_tty->{ substr($path,3) } ) {
 		$tty = "/dev/" . $usb_path_tty->{ substr($path,3) };
 	}
 
+	if ( length($path) > 3 ) {
+		my $check_tty = substr($path,3) . ':' . $if; # path with interface
+
+		if ( exists $usb_path_tty->{ $check_tty } ) {
+			$tty = "/dev/" . $usb_path_tty->{ $check_tty };
+		}
+	}
 
 	if ( $opt_verbose > 0 ) {
 
