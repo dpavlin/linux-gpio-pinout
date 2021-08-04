@@ -72,6 +72,8 @@ while(<$lsusb>) {
 		next;
 	}
 
+	@more = grep { ! m/Class=Vendor Specific Class/ } @more; # remote uninformative class
+
 	my $speed = pop @more;
 
 	$bus = $1 if m/Bus (\d+)/;
