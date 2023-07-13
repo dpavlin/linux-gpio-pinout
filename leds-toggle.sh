@@ -37,9 +37,9 @@ readc() { # arg: <variable-name>
 
 while true; do
 
-grep . /sys/class/leds/*/brightness | cat -n | tee /dev/shm/leds
+grep . /sys/class/leds/*/brightness | cat -n | awk '{ if ( $1 < 10 ) print $1 " " $2; else printf "%c %s\n", $1 + 97 - 10, $2; }' | tee /dev/shm/leds
 
-echo -n "# toggle led number: "
+echo -n "# toggle led: "
 readc LED
 #echo "got [$LED]"
 grep "\b$LED\b" /dev/shm/leds | while read nr rest ; do
