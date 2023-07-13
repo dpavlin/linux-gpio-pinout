@@ -1,0 +1,9 @@
+# Pine64 PinePhone Braveheart (1.1)
+
+## pogo
+1	DC IN
+2	PE15	PE15-TWI2-SDA33
+3	GND
+4	PE14	PE14-TWI2-SCK33
+5	USB-5V
+6	PL12	PL12-POGO-INT33
