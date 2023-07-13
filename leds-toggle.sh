@@ -42,15 +42,16 @@ grep . /sys/class/leds/*/brightness | cat -n | awk '{ if ( $1 < 10 ) print $1 " 
 echo -n "# toggle led: "
 readc LED
 #echo "got [$LED]"
-grep "\b$LED\b" /dev/shm/leds | while read nr rest ; do
+grep "^$LED\b" /dev/shm/leds | while read nr rest ; do
 	path=$( echo $rest | sed 's/:[0-9]*$//' )
 	b=$( echo $rest | sed 's/^.*:\([0-9]*\)$/\1/' )
 	m=$( cat $( echo $path | sed 's,/brightness,/max_brightness,' ) )
-	echo "## $path $b $m"
-	if [ $b != $m ] ; then
+	if [ $b = 0 ] ; then
 		echo $m > $path
+		echo " ## $path $b max:$m [$m]"
 	else
 		echo 0 > $path
+		echo " ## $path $b max:$m [0]"
 	fi
 done
 
