@@ -10,6 +10,26 @@ $opt_verbose = 1 if @ARGV;
 
 my $debug = $ENV{DEBUG} || 0;
 
+my $uhubctl;
+my $hub;
+
+open(my $uhubctl_fh, '-|', 'sudo uhubctl');
+while(<$uhubctl_fh>) {
+	chomp;
+	print "# $_\n";
+
+	if ( m/hub (\S+) (.+)/ ) {
+		$hub = $1;
+		$uhubctl->{$1} = $2;
+	} elsif ( m/Port (\d+): (.+)/ ) {
+		$uhubctl->{ $hub . '.' . $1 } = $2 . " -l $hub -p $1";
+	}
+
+}
+
+warn "## uhubctl = ",dump($uhubctl) if $debug;
+
+
 my $device; # id
 
 open(my $lsusb, '-|', 'lsusb');
@@ -128,9 +148,26 @@ while(<$lsusb>) {
 	my ($vendor_product, $name_only ) = split(/\s/,$name,2);
 	printf "%${o}s ", $speed;
 	print $vendor_product, " ";
-	print $tty, " " if $tty;
-	print $name_only, " | ";
+
+	# uhubctl
+	my $path2 = $path; $path2 =~ s/^\.(\d+)\./$1-/;
+	my $u;
+	if ( exists $uhubctl->{$path2} ) {
+		$u = $uhubctl->{$path2};
+		if ( $u =~ s/ (-l.*)// ) {
+			print $1;
+		}
+	}
+
+	print " ", $tty if $tty;
+
+	print " # $u" if $u;
+
+	print " ", $name_only, " | ";
 	print join(", ", @more);
+
+
+
 
 	#printf "path=%10s", $path;
 
