@@ -31,17 +31,16 @@ my $usb_path_tty;
 foreach my $path ( glob '/dev/serial/by-path/*' ) {
 	my $tty = readlink $path;
 	$tty =~ s/^[\.\/]*//;
-	#print "# $path -> $tty\n";
-	$path =~ s/^.*-usb-\d+://;
-	$path =~ s/:\d+\.(\d).*$/:$1/ || die "can't keep :interface in [$path]";
+	print "# $path -> $tty\n" if $debug;
+	$path =~ s/^.*-usb\w*-\d+://;
+	$path =~ s/:.+$//;
+	#$path =~ s/:\d+\.(\d).*$/:$1/ || die "can't keep :interface in [$path]";
 	$usb_path_tty->{$path} = $tty;
-
-	#$path =~ s/:.+$//; # without :interface
-	#$usb_path_tty->{$path} = $tty;
 }
 warn "## usb_path_tty = ",dump($usb_path_tty) if $debug;
 
 my $path = 'XXXXXX';
+my @path;
 
 open($lsusb, '-|', 'lsusb -t');
 while(<$lsusb>) {
@@ -55,7 +54,7 @@ while(<$lsusb>) {
 	my $bus;
 	my $port;
 	my $dev;
-	my $if;
+	my $if = '';
 	if ( m/Bus (\d+)\.Port (\d+): Dev (\d+), (.+)/ ) {
 		$bus  = $1;
 		$port = $2;
@@ -64,7 +63,7 @@ while(<$lsusb>) {
 	} elsif ( m/(\s+).*Port (\d+): Dev (\d+), If (\d+), (.+)/ ) {
 		$level = length($1) / 4;
 		$port = $2;
-		$dev = $3 * 1;
+		$dev = $3;
 		$if = $4;
 		@more = split(/,\s+/, $5);
 	} else {
@@ -72,27 +71,24 @@ while(<$lsusb>) {
 		next;
 	}
 
+	# convert to int
+	$bus  = $bus * 1 if $bus;
+	$port = $port * 1;
+	$dev  = $dev * 1;
+
 	@more = grep { ! m/Class=Vendor Specific Class/ } @more; # remote uninformative class
 
 	my $speed = pop @more;
 
 	$bus = $1 if m/Bus (\d+)/;
 
-	$path = substr($path,0,$level * 2) . '.' . $port;
-	print "$path" if $debug;
+	@path = splice @path, 0, $level-1; push @path, $port;
+	my $path = join('.', @path);
 
-	#warn "### level=$level port=$2 path $path | $_\n";
-	if ( length($path) > 3 && exists $usb_path_tty->{ substr($path,3) } ) {
-		$tty = "/dev/" . $usb_path_tty->{ substr($path,3) };
+	if ( exists $usb_path_tty->{ $path } ) {
+		$tty = "/dev/" . $usb_path_tty->{ $path };
 	}
 
-	if ( length($path) > 3 ) {
-		my $check_tty = substr($path,3) . ':' . $if; # path with interface
-
-		if ( exists $usb_path_tty->{ $check_tty } ) {
-			$tty = "/dev/" . $usb_path_tty->{ $check_tty };
-		}
-	}
 
 	if ( $opt_verbose > 0 ) {
 
@@ -119,6 +115,8 @@ while(<$lsusb>) {
 			$port, $dev, $if
 		;
 	};
+
+	$o .= "[$path]" if $debug;
 
 	print $o;
 	$o = 32 - length($o);
