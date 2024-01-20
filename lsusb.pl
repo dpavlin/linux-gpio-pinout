@@ -41,6 +41,7 @@ warn "## usb_path_tty = ",dump($usb_path_tty) if $debug;
 
 my $path = 'XXXXXX';
 my @path;
+my $bus;
 
 open($lsusb, '-|', 'lsusb -t');
 while(<$lsusb>) {
@@ -51,7 +52,6 @@ while(<$lsusb>) {
 
 	my @more;
 	my $level = 0; # 0=bus
-	my $bus;
 	my $port;
 	my $dev;
 	my $if = '';
@@ -80,7 +80,7 @@ while(<$lsusb>) {
 
 	my $speed = pop @more;
 
-	$bus = $1 if m/Bus (\d+)/;
+	$bus = $1 * 1 if m/Bus (\d+)/;
 
 	@path = splice @path, 0, $level-1; push @path, $port;
 	my $path = join('.', @path);
