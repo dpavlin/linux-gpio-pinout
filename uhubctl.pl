@@ -77,10 +77,12 @@ while(<$lsusb>) {
 
 	my @more;
 	my $level = 0; # 0=bus
+	my $is_bus = 0;
 	my $port;
 	my $dev;
 	my $if = '';
 	if ( m/Bus (\d+)\.Port (\d+): Dev (\d+), (.+)/ ) {
+		$is_bus = 1;
 		$bus  = $1;
 		$port = $2;
 		$dev  = $3;
@@ -129,7 +131,7 @@ while(<$lsusb>) {
 
 	my $o;
 
-	if ( $bus ) {
+	if ( $is_bus ) {
 		$o = sprintf "Bus %02d Port %d, Dev %d",
 			$bus, $port, $dev,
 		;
